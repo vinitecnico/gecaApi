@@ -39,14 +39,7 @@ routes.get('/submenu/:id', controllerSubMenu.getOnlySubMenu);
 routes.put('/submenu/:id', controllerSubMenu.putSubMenu);
 routes.delete('/submenu/:id', controllerSubMenu.deleteSubMenu);
 
+
 ///Login
 routes.post('/login', controllerLogin.postLogin);
-
-///Pessoa
-routes.post('/pessoa', controllerSubMenu.postPessoa);
-routes.get('/pessoa', controllerSubMenu.getPessoa);
-routes.get('/pessoa/:id', controllerSubMenu.getOnlyPessoa);
-routes.put('/pessoa/:id', controllerSubMenu.putPessoa);
-routes.delete('/pessoa/:id', controllerSubMenu.deletePessoa);
-
 module.exports = routes
