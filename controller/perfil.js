@@ -2,7 +2,7 @@ var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 
 ///GET PERFIL
-exports.getPerfil = (request, response, next) => {
+exports.getPerfil = function(request, response, next) {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -43,7 +43,7 @@ exports.getPerfil = (request, response, next) => {
 }
 
 ///GET PERFIL COM ID
-exports.getOnlyPerfil = (request, response, next) => {
+exports.getOnlyPerfil = function(request, response, next) {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -78,7 +78,7 @@ exports.getOnlyPerfil = (request, response, next) => {
 }
 
 ///POST PERFIL
-exports.postPerfil = (request, response, next) => {
+exports.postPerfil = function(request, response, next) {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true, poolSize: 10 }, function (erro, db) {
         
@@ -131,7 +131,7 @@ exports.postPerfil = (request, response, next) => {
 }
 
 ///PUT PERFIL
-exports.putPerfil = (request, response, next) => {
+exports.putPerfil = function(request, response, next) {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
         
@@ -179,7 +179,7 @@ exports.putPerfil = (request, response, next) => {
 }
 
 ///DELETE PERFIL
-exports.deletePerfil = (request, response, next) => {
+exports.deletePerfil = function (request, response, next) {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 

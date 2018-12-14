@@ -2,7 +2,7 @@ var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 
 ///GET SubMenu
-exports.getSubMenu = (request, response, next) => {
+exports.getSubMenu = function(request, response, next) {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -41,7 +41,7 @@ exports.getSubMenu = (request, response, next) => {
 }
 
 ///GET SubMenu
-exports.getOnlySubMenu = (request, response, next) => {
+exports.getOnlySubMenu = function(request, response, next) {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -76,7 +76,7 @@ exports.getOnlySubMenu = (request, response, next) => {
 }
 
 ///POST SubMenu
-exports.postSubMenu = (request, response, next) => {
+exports.postSubMenu = function(request, response, next) {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true}, function (erro, db) {
         
@@ -130,7 +130,7 @@ exports.postSubMenu = (request, response, next) => {
 }
 
 ///PUT SubMenu
-exports.putSubMenu = (request, response, next) => {
+exports.putSubMenu = function(request, response, next) {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -178,7 +178,7 @@ exports.putSubMenu = (request, response, next) => {
 }
 
 ///DELETE SubMenu
-exports.deleteSubMenu = (request, response, next) => {
+exports.deleteSubMenu = function(request, response, next) {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 

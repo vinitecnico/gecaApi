@@ -2,7 +2,7 @@ var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 
 ///POST LOGIN
-exports.postLogin = (request, response, next) => {
+exports.postLogin = function(request, response, next) {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
