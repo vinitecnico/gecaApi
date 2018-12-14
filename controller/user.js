@@ -3,7 +3,7 @@ const status = require('http-status');
 
 
 ///GET USER
-exports.getUsers = function (request, response, next)  {
+exports.getUsers = (request, response, next) => {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -36,7 +36,7 @@ exports.getUsers = function (request, response, next)  {
 }
 
 ///GET USER:ID
-exports.getOnlyUser = function (request, response, next) {
+exports.getOnlyUser = (request, response, next) => {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -71,7 +71,7 @@ exports.getOnlyUser = function (request, response, next) {
 }
 
 ///POST USER
-exports.postUser = function (request, response, next) {
+exports.postUser = (request, response, next) => {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -150,7 +150,7 @@ exports.postUser = function (request, response, next) {
 }
 
 ///PUT USER
-exports.putUser = function (request, response, next) {
+exports.putUser = (request, response, next) => {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -211,7 +211,7 @@ exports.putUser = function (request, response, next) {
 }
 
 ///DELETE USER
-exports.deleteUser = function(request, response, next) {
+exports.deleteUser = (request, response, next) => {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 

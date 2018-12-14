@@ -2,7 +2,7 @@ var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 
 ///GET MENU
-exports.getMenu = function (request, response, next) {
+exports.getMenu = (request, response, next) => {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -41,7 +41,7 @@ exports.getMenu = function (request, response, next) {
 }
 
 ///GET Menu COM ID
-exports.getOnlyMenu = function (request, response, next) {
+exports.getOnlyMenu = (request, response, next) => {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -76,7 +76,7 @@ exports.getOnlyMenu = function (request, response, next) {
 }
 
 ///POST MENU
-exports.postMenu = function (request, response, next) {
+exports.postMenu = (request, response, next) => {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true}, function (erro, db) {
         
@@ -129,7 +129,7 @@ exports.postMenu = function (request, response, next) {
 }
 
 ///PUT MENU
-exports.putMenu = function (request, response, next) {
+exports.putMenu = (request, response, next) => {
     
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -176,7 +176,7 @@ exports.putMenu = function (request, response, next) {
 }
 
 ///DELETE MENU
-exports.deleteMenu = function(request, response, next) {
+exports.deleteMenu = (request, response, next) => {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
