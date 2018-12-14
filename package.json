@@ -4,6 +4,7 @@
   "description": "Sistema de Cadastro e Analise de Dados",
   "main": "src/app.js",
   "scripts": {
+    "start": "src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
