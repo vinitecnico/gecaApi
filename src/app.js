@@ -16,12 +16,12 @@ app.use("/api" , routespath);
 
 
 ///MIDDLEWARE 404: url's não encontradas;
-app.use((request, response, next) => {
+app.use(function (request, response, next) {
     response.status(status.NOT_FOUND).send()
 })
  
 ///MIDDLEWARE 500: ;
-app.use((error, request, response, next) => {
+app.use(function (error, request, response, next) {
     response.status(status.INTERNAL_SERVER_ERROR).json({ error })
 })
 
