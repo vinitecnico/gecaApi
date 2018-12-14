@@ -33,6 +33,8 @@ const server = require('http').createServer(app)
 //     console.log(`Servidor em execução em http://${hostname}:${port}/`)
 // })
 
-app.listen(port || 5000, function () {
-    console.log(`Servidor em execução em http://127.0.0.1::${port}/`)
+app.set('port', (process.env.PORT || 5000));
+
+app.listen(app.get('port'), function () {
+    console.log('Node app is running on port', app.get('port'));
 });
