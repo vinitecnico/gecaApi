@@ -1,5 +1,5 @@
 ///Constante 
-const express =require('express');
+const express = require('express');
 const routespath = require("../routes/router");
 const status = require('http-status')
 const conf = require("../conf/config");
@@ -11,7 +11,7 @@ const port = conf.port;
 /// e criação de middleware atraves do express
 const app = express();
 app.use(express.json())
-app.use("/api" , routespath);
+app.use("/api", routespath);
 
 
 
@@ -19,7 +19,7 @@ app.use("/api" , routespath);
 app.use(function (request, response, next) {
     response.status(status.NOT_FOUND).send()
 })
- 
+
 ///MIDDLEWARE 500: ;
 app.use(function (error, request, response, next) {
     response.status(status.INTERNAL_SERVER_ERROR).json({ error })
@@ -29,6 +29,10 @@ app.use(function (error, request, response, next) {
 const server = require('http').createServer(app)
 
 /// Input 
-server.listen(port , hostname, function() {
-    console.log(`Servidor em execução em http://${hostname}:${port}/`)
-})
+// server.listen(port , hostname, function() {
+//     console.log(`Servidor em execução em http://${hostname}:${port}/`)
+// })
+
+app.listen(port || 5000, function () {
+    console.log(`Servidor em execução em http://127.0.0.1::${port}/`)
+});
