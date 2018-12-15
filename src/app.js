@@ -3,7 +3,7 @@ const express =require('express');
 const routespath = require("../routes/router");
 const status = require('http-status')
 const conf = require("../conf/config");
-const hostname = conf.hostname;
+//const hostname = conf.hostname;
 const port = process.env.PORT || conf.port;
 
 
@@ -29,6 +29,6 @@ app.use((error, request, response, next) => {
 const server = require('http').createServer(app)
 
 /// Input 
-server.listen(port , hostname , () => {
+server.listen(port , () => {
     console.log(`Servidor em execução em  http://${hostname}:${port}/`)
 })
