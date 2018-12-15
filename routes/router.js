@@ -12,8 +12,11 @@ const controllerLogin = require("../controller/login");
 const routes = express.Router();
 
 ///USER
-
+routes.post('/user', controllerUser.postUser);
 routes.get('/user', controllerUser.getUsers);
+routes.get('/user/:id', controllerUser.getOnlyUser);
+routes.put('/user/:id', controllerUser.putUser);
+routes.delete('/user/:id', controllerUser.deleteUser);
 
 ///PERFIL
 routes.post('/perfil', controllerPerfil.postPerfil);
