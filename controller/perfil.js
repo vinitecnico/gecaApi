@@ -8,7 +8,7 @@ exports.getPerfil = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
@@ -49,7 +49,7 @@ exports.getOnlyPerfil = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
@@ -93,7 +93,7 @@ exports.postPerfil = (request, response, next) => {
 
                 if (err) {
                 
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                 
                 }
                 else {
@@ -109,11 +109,11 @@ exports.postPerfil = (request, response, next) => {
                 
                         if (err) {
                 
-                            response.status(400).send(JSON.stringify(err));
+                            response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                 
                         }else {
                          
-                            response.status(200).send(JSON.stringify("Perfil Cadastrado com Sucesso."));
+                            response.status(status.OK).send(JSON.stringify("Perfil Cadastrado com Sucesso."));
                         }
 
                         db.close();
@@ -137,7 +137,7 @@ exports.putPerfil = (request, response, next) => {
         
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
 
@@ -153,17 +153,17 @@ exports.putPerfil = (request, response, next) => {
                 
                 if (err) {
                 
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                 
                 }else {
 
                     if (res.modifiedCount != 0) {
 
-                        response.status(200).send(JSON.stringify("Perfil atualizado com sucesso."));
+                        response.status(status.OK).send(JSON.stringify("Perfil atualizado com sucesso."));
                     
                     } else {
                     
-                        response.status(200).send(JSON.stringify("Perfil nao encontrado"));
+                        response.status(status.OK).send(JSON.stringify("Perfil nao encontrado"));
                     
                     }
 
@@ -185,7 +185,7 @@ exports.deletePerfil = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             /// DataBase
@@ -194,17 +194,17 @@ exports.deletePerfil = (request, response, next) => {
 
                 if (err) {
                 
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                 
                 }else {
 
                     if (res.deletedCount != 0) {
                     
-                        response.status(200).send(JSON.stringify("Perfil deletado com sucesso."));
+                        response.status(status.OK).send(JSON.stringify("Perfil deletado com sucesso."));
                     
                     } else {
                     
-                        response.status(200).send(JSON.stringify("Perfil nao encontrado"));
+                        response.status(status.OK).send(JSON.stringify("Perfil nao encontrado"));
                     
                     }
                 }

@@ -8,7 +8,7 @@ exports.getMenu = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
@@ -47,7 +47,7 @@ exports.getOnlyMenu = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
@@ -91,7 +91,7 @@ exports.postMenu = (request, response, next) => {
                 
                 if (err) {
                 
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                 
                 }else {
 
@@ -106,11 +106,11 @@ exports.postMenu = (request, response, next) => {
 
                         if (err) {
 
-                            response.status(400).send(JSON.stringify(err));
+                            response.status(status.BAD_REQUEST).send(JSON.stringify(err));
 
                         }else {
 
-                            response.status(200).send(JSON.stringify("Menu foi Cadastrado com Sucesso"));
+                            response.status(status.OK).send(JSON.stringify("Menu foi Cadastrado com Sucesso"));
                             
                         }
                         db.close();
@@ -135,7 +135,7 @@ exports.putMenu = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
@@ -151,17 +151,17 @@ exports.putMenu = (request, response, next) => {
              
                 if (err) {
              
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
              
                 }else {
 
                     if (res.modifiedCount != 0) {
 
-                        response.status(200).send(JSON.stringify("Menu atualizado com sucesso."));
+                        response.status(status.OK).send(JSON.stringify("Menu atualizado com sucesso."));
                     
                     } else {
                     
-                        response.status(200).send(JSON.stringify("Menu nao encontrado"));
+                        response.status(status.OK).send(JSON.stringify("Menu nao encontrado"));
                     
                     }
                 }
@@ -182,7 +182,7 @@ exports.deleteMenu = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
                         
@@ -191,17 +191,17 @@ exports.deleteMenu = (request, response, next) => {
                 
                 if (err) {
                 
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                 
                 }else {
 
                     if (res.deletedCount != 0) {
                     
-                        response.status(200).send(JSON.stringify("Menu deletado com sucesso."));
+                        response.status(status.OK).send(JSON.stringify("Menu deletado com sucesso."));
                     
                     } else {
                     
-                        response.status(200).send(JSON.stringify("Menu nao encontrado"));
+                        response.status(status.OK).send(JSON.stringify("Menu nao encontrado"));
                     
                     }
                 }

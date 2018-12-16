@@ -7,6 +7,7 @@ const controllerPerfil = require("../controller/perfil");
 const controllerMenu = require("../controller/menu");
 const controllerSubMenu = require("../controller/submenu");
 const controllerLogin = require("../controller/login");
+const controllerPessoa = require("../controller/pessoa");
 
 /// EXPRESS
 const routes = express.Router();
@@ -42,4 +43,12 @@ routes.delete('/submenu/:id', controllerSubMenu.deleteSubMenu);
 
 ///Login
 routes.post('/login', controllerLogin.postLogin);
+
+///Pessoa
+routes.post('/pessoa', controllerPessoa.postPessoa);
+routes.get('/pessoa', controllerPessoa.getPessoa);
+routes.get('/pessoa/:id', controllerPessoa.getOnlyPessoa);
+routes.put('/pessoa/:id', controllerPessoa.putPessoa);
+routes.delete('/pessoa/:id', controllerPessoa.deletePessoa);
+
 module.exports = routes

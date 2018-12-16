@@ -8,7 +8,7 @@ exports.getSubMenu = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
@@ -47,7 +47,7 @@ exports.getOnlySubMenu = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
@@ -107,11 +107,11 @@ exports.postSubMenu = (request, response, next) => {
 
                         if (err) {
 
-                            response.status(400).send(JSON.stringify(err));
+                            response.status(status.BAD_REQUEST).send(JSON.stringify(err));
 
                         }else {
 
-                            response.status(200).send(JSON.stringify("SubMenu foi Cadastrado com Sucesso"));
+                            response.status(status.OK).send(JSON.stringify("SubMenu foi Cadastrado com Sucesso"));
                             
                         }
                         db.close();
@@ -136,7 +136,7 @@ exports.putSubMenu = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
@@ -153,17 +153,17 @@ exports.putSubMenu = (request, response, next) => {
              
                 if (err) {
              
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
              
                 }else {
 
                     if (res.modifiedCount != 0) {
 
-                        response.status(200).send(JSON.stringify("SubMenu atualizado com sucesso."));
+                        response.status(status.OK).send(JSON.stringify("SubMenu atualizado com sucesso."));
                     
                     } else {
                     
-                        response.status(200).send(JSON.stringify("SubMenu nao encontrado"));
+                        response.status(status.OK).send(JSON.stringify("SubMenu nao encontrado"));
                     
                     }
                 }
@@ -184,7 +184,7 @@ exports.deleteSubMenu = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
                         
@@ -193,17 +193,17 @@ exports.deleteSubMenu = (request, response, next) => {
                 
                 if (err) {
                 
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                 
                 }else {
 
                     if (res.deletedCount != 0) {
                     
-                        response.status(200).send(JSON.stringify("SubMenu deletado com sucesso."));
+                        response.status(status.OK).send(JSON.stringify("SubMenu deletado com sucesso."));
                     
                     } else {
                     
-                        response.status(200).send(JSON.stringify("SubMenu nao encontrado"));
+                        response.status(status.OK).send(JSON.stringify("SubMenu nao encontrado"));
                     
                     }
                 }

@@ -9,7 +9,7 @@ exports.getUsers = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
@@ -42,7 +42,7 @@ exports.getOnlyUser = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
@@ -89,14 +89,14 @@ exports.postUser = (request, response, next) => {
                 
                 if (err) {
 
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
 
                 }
                 else {
 
                     if (res.length != 0) {
 
-                        response.status(200).send(JSON.stringify("Cadastro do usuario foi encontrado em nossa base."));
+                        response.status(status.OK).send(JSON.stringify("Cadastro do usuario foi encontrado em nossa base."));
 
                     } else {
 
@@ -124,12 +124,12 @@ exports.postUser = (request, response, next) => {
 
                             if (err) {
 
-                                response.status(400).send(JSON.stringify(err));
+                                response.status(status.BAD_REQUEST).send(JSON.stringify(err));
 
                             }
                             else {
 
-                                response.status(200).send(JSON.stringify("Usuario cadastrado com sucesso"));                                
+                                response.status(status.OK).send(JSON.stringify("Usuario cadastrado com sucesso"));                                
                                 
                             }
 
@@ -156,7 +156,7 @@ exports.putUser = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
 
@@ -185,18 +185,18 @@ exports.putUser = (request, response, next) => {
                 
                 if (err) {
                 
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                 
                 }
                 else {
                 
                     if (res.modifiedCount != 0) {
                 
-                        response.status(200).send(JSON.stringify("Usuario atualizado com sucesso."));
+                        response.status(status.OK).send(JSON.stringify("Usuario atualizado com sucesso."));
                 
                     } else {
                 
-                        response.status(200).send(JSON.stringify("Usuario nao encontrado"));
+                        response.status(status.OK).send(JSON.stringify("Usuario nao encontrado"));
                 
                     }
                 }
@@ -217,7 +217,7 @@ exports.deleteUser = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             /// DataBase
@@ -226,18 +226,18 @@ exports.deleteUser = (request, response, next) => {
             db.db("baseinit").collection("users").deleteOne(query, function (err, res) {
                 if (err) {
 
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
 
                 }
                 else {
 
                     if (res.deletedCount != 0) {
                     
-                        response.status(200).send(JSON.stringify("Usuario deletado com sucesso."));
+                        response.status(status.OK).send(JSON.stringify("Usuario deletado com sucesso."));
                     
                     } else {
                     
-                        response.status(200).send(JSON.stringify("Usuario nao encontrado"));
+                        response.status(status.OK).send(JSON.stringify("Usuario nao encontrado"));
                     
                     }
                 }

@@ -8,7 +8,7 @@ exports.postLogin = (request, response, next) => {
 
         if (erro) {
 
-            response.status(400).send(JSON.stringify(erro));
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
             
