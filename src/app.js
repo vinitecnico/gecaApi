@@ -36,7 +36,6 @@ app.use((error, request, response, next) => {
 const server = require('http').createServer(app)
 
 /// Input 
-server.listen(port , () => {
-    //console.log(`Servidor em execução em  http://${hostname}:${port}/`)
+server.listen(port , () => {   
 	console.log(`Servidor em execução na Port:${port}`)
-})
+});
