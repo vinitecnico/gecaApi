@@ -9,6 +9,7 @@ const controllerSubMenu = require("../controller/submenu");
 const controllerLogin = require("../controller/login");
 const controllerPessoa = require("../controller/pessoa");
 const controllerFeira = require("../controller/feira");
+const controllerEmpresa = require("../controller/empresas");
 
 /// EXPRESS
 const routes = express.Router();
@@ -58,5 +59,12 @@ routes.get('/feira', controllerFeira.getFeira);
 routes.get('/feira/:id', controllerFeira.getOnlyFeira);
 routes.put('/feira/:id', controllerFeira.putFeira);
 routes.delete('/feira/:id', controllerFeira.deleteFeira);
+
+///Empresa
+routes.post('/empresa', controllerEmpresa.postEmpresa);
+routes.get('/empresa', controllerEmpresa.getEmpresa);
+routes.get('/empresa/:id', controllerEmpresa.getOnlyEmpresa);
+routes.put('/empresa/:id', controllerEmpresa.putEmpresa);
+routes.delete('/empresa/:id', controllerEmpresa.deleteEmpresa);
 
 module.exports = routes
