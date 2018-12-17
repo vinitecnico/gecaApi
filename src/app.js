@@ -10,6 +10,13 @@ const port = process.env.PORT || conf.port;
 /// Criando Configurações para Utilização dos VERBS [POST, GET, PUT, DELETE]
 /// e criação de middleware atraves do express
 const app = express();
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
+    next();
+});
+
 app.use(express.json())
 app.use("/api" , routespath);
 
