@@ -10,6 +10,7 @@ const controllerLogin = require("../controller/login");
 const controllerPessoa = require("../controller/pessoa");
 const controllerFeira = require("../controller/feira");
 const controllerEmpresa = require("../controller/empresas");
+const controllerColegio = require("../controller/colegio");
 
 /// EXPRESS
 const routes = express.Router();
@@ -66,5 +67,12 @@ routes.get('/empresa', controllerEmpresa.getEmpresa);
 routes.get('/empresa/:id', controllerEmpresa.getOnlyEmpresa);
 routes.put('/empresa/:id', controllerEmpresa.putEmpresa);
 routes.delete('/empresa/:id', controllerEmpresa.deleteEmpresa);
+
+///Colegio
+routes.post('/colegio', controllerColegio.postColegio);
+routes.get('/colegio', controllerColegio.getColegio);
+routes.get('/colegio/:id', controllerColegio.getColegio);
+routes.put('/colegio/:id', controllerColegio.putColegio);
+routes.delete('/colegio/:id', controllerColegio.deleteColegio);
 
 module.exports = routes
