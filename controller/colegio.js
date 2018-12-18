@@ -46,7 +46,7 @@ exports.getOnlyColegio = (request, response, next) => {
 
         } else {
 
-            db.db("baseinit").collection("colegios").find({ "cep": parseInt(request.params.id) }).toArray(function (err, res) {
+            db.db("baseinit").collection("colegios").find({ "zipcode": parseInt(request.params.id) }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -83,7 +83,7 @@ exports.postColegio = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("colegios").find({ "cep": parseInt(request.body.cep) }).toArray(function (err, res) {
+            dbo.collection("colegios").find({ "zipcode": request.body.zipcode }).toArray(function (err, res) {
 
                 if (err) {
 
@@ -100,22 +100,19 @@ exports.postColegio = (request, response, next) => {
 
                         ///Object para inserção
                         var myobj = {
-                            "nomeescolaColeg": request.body.nomeescolaColeg,
-                            "numeleitores": parseInt(request.body.numeleitores),
-                            "zona":  parseInt(request.body.zona),
-                            "sessao":  parseInt(request.body.sessao),
-                            "sessaoespecial":  parseInt(request.body.sessaoespecial),
-                            "cep":  parseInt(request.body.cep),
-                            "endereco": request.body.endereco,
-                            "num": request.body.num,
-                            "complemento": request.body.complemento,
-                            "bairro": request.body.bairro,
-                            "cidade": request.body.cidade,
-                            "estado": request.body.estado,
-                            "posgps": [
-                                request.body.posgps[0],
-                                request.body.posgps[1]
-                            ],
+                            "name": request.body.name,
+                            "numbervoters": request.body.numbervoters,
+                            "electoralzone": request.body.electoralzone,
+                            "section": request.body.section,
+                            "specialsection": request.body.specialsection,
+                            "zipcode": request.body.zipcode,
+                            "address": request.body.address,
+                            "numberAddress": request.body.numberAddress,
+                            "complement": request.body.complement,
+                            "neighborhood": request.body.neighborhood,
+                            "city": request.body.city,
+                            "state": request.body.state,
+                            "gps": request.body.gps,
                             "datacreate": new Date(Date.now()),
                             "dataUpdate": new Date(Date.now())
                         }
@@ -163,27 +160,24 @@ exports.putColegio = (request, response, next) => {
             /// DataBase            
             var newvalues = {
                 $set: {
-                    "nomeescolaColeg": request.body.nomeescolaColeg,
-                    "numeleitores": parseInt(request.body.numeleitores),
-                    "zona":  parseInt(request.body.zona),
-                    "sessao":  parseInt(request.body.sessao),
-                    "sessaoespecial":  parseInt(request.body.sessaoespecial),
-                    "cep":  parseInt(request.body.cep),
-                    "endereco": request.body.endereco,
-                    "num": request.body.num,
-                    "complemento": request.body.complemento,
-                    "bairro": request.body.bairro,
-                    "cidade": request.body.cidade,
-                    "estado": request.body.estado,
-                    "posgps": [
-                        request.body.posgps[0],
-                        request.body.posgps[1]
-                    ],
+                    "name": request.body.name,
+                    "numbervoters": request.body.numbervoters,
+                    "electoralzone": request.body.electoralzone,
+                    "section": request.body.section,
+                    "specialsection": request.body.specialsection,
+                    "zipcode": request.body.zipcode,
+                    "address": request.body.address,
+                    "numberAddress": request.body.numberAddress,
+                    "complement": request.body.complement,
+                    "neighborhood": request.body.neighborhood,
+                    "city": request.body.city,
+                    "state": request.body.state,
+                    "gps": request.body.gps,
                     "dataUpdate": new Date(Date.now())
                 }
             }
 
-            db.db("baseinit").collection("colegios").updateOne({ "cep": parseInt(request.params.id) }, newvalues, function (err, res) {
+            db.db("baseinit").collection("colegios").updateOne({ "zipcode": request.params.id }, newvalues, function (err, res) {
 
                 if (err) {
 
@@ -223,7 +217,7 @@ exports.deleteColegio = (request, response, next) => {
 
         } else {
             /// DataBase            
-            db.db("baseinit").collection("colegios").deleteOne({ "cep": parseInt(request.params.id) }, function (err, res) {
+            db.db("baseinit").collection("colegios").deleteOne({ "zipcode": request.params.id }, function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
