@@ -12,19 +12,19 @@ exports.getFeira = (request, response, next) => {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
-            
+
             db.db("baseinit").collection("feiras").find({}).toArray(function (err, res) {
                 if (err) {
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                 }
                 else {
 
-                    if(res.length != 0){
+                    if (res.length != 0) {
                         response.status(status.OK).send(res);
-                    }else{
+                    } else {
                         response.status(status.OK).send(JSON.stringify("Nenhum Feria foi Cadastrada."));
                     }
-                    
+
                 }
 
                 db.close();
@@ -45,8 +45,8 @@ exports.getOnlyFeira = (request, response, next) => {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
-                        
-            db.db("baseinit").collection("feiras").find({"cep" : parseInt(request.params.id)}).toArray(function (err, res) {
+
+            db.db("baseinit").collection("feiras").find({ "zipcode": request.params.id }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -66,7 +66,7 @@ exports.getOnlyFeira = (request, response, next) => {
 
         }
     });
-    
+
 }
 
 ///POST Feira
@@ -83,8 +83,8 @@ exports.postFeira = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("feiras").find({"cep" : parseInt(request.params.id)}).toArray(function (err, res) {
-                
+            dbo.collection("feiras").find({ zipcode: request.body.zipcode, weekday: request.body.weekday }).toArray(function (err, res) {
+
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -100,19 +100,16 @@ exports.postFeira = (request, response, next) => {
 
                         ///Object para inserção
                         var myobj = {
-                            "nomefeira": request.body.nomefeira,
-                            "idSemana": parseInt(request.body.idSemana),
-                            "cep": parseInt(request.body.cep),
-                            "end": request.body.end,
-                            "num": parseInt(request.body.num),
-                            "complemento": request.body.complemento,
-                            "bairro": request.body.bairro,
-                            "cidade": request.body.cidade,
-                            "estado": request.body.estado,
-                            "posgps": [
-                                request.body.posgps[0],
-                                request.body.posgps[1]
-                            ],
+                            "name": request.body.name,
+                            "weekday": request.body.weekday,
+                            "zipcode": request.body.zipcode,
+                            "address": request.body.address,
+                            "numberAddress": request.body.numberAddress,
+                            "complement": request.body.complement,
+                            "neighborhood": request.body.neighborhood,
+                            "city": request.body.city,
+                            "state": request.body.state,
+                            "gps": request.body.gps,
                             "datacreate": new Date(Date.now()),
                             "dataUpdate": new Date(Date.now())
                         }
@@ -126,8 +123,8 @@ exports.postFeira = (request, response, next) => {
                             }
                             else {
 
-                                response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));                                
-                                
+                                response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));
+
                             }
 
                             db.close();
@@ -136,7 +133,7 @@ exports.postFeira = (request, response, next) => {
                     }
 
                 }
-                db.close();
+                    db.close();
 
             });
 
@@ -160,24 +157,21 @@ exports.putFeira = (request, response, next) => {
             /// DataBase            
             var newvalues = {
                 $set: {
-                    "nomefeira": request.body.nomefeira,
-                    "idSemana": parseInt(request.body.idSemana),
-                    "cep": parseInt(request.body.cep),
-                    "end": request.body.end,
-                    "num": parseInt(request.body.num),
-                    "complemento": request.body.complemento,
-                    "bairro": request.body.bairro,
-                    "cidade": request.body.cidade,
-                    "estado": request.body.estado,
-                    "posgps": [
-                        request.body.posgps[0],
-                        request.body.posgps[1]
-                    ],
+                    "name": request.body.name,
+                    "weekday": request.body.weekday,
+                    "zipcode": request.body.zipcode,
+                    "address": request.body.address,
+                    "numberAddress": request.body.numberAddress,
+                    "complement": request.body.complement,
+                    "neighborhood": request.body.neighborhood,
+                    "city": request.body.city,
+                    "state": request.body.state,
+                    "gps": request.body.gps,
                     "dataUpdate": new Date(Date.now())
                 }
             }
-            
-            db.db("baseinit").collection("feiras").updateOne({"cep" : parseInt(request.params.id)}, newvalues, function (err, res) {
+
+            db.db("baseinit").collection("feiras").updateOne({ zipcode: request.body.zipcode, weekday: request.body.weekday }, newvalues, function (err, res) {
 
                 if (err) {
 
@@ -217,7 +211,7 @@ exports.deleteFeira = (request, response, next) => {
 
         } else {
             /// DataBase            
-            db.db("baseinit").collection("feiras").deleteOne({"cep" : parseInt(request.params.id)}, function (err, res) {
+            db.db("baseinit").collection("feiras").deleteOne({ zipcode: request.params.id, weekday: request.body.weekday, name: request.body.name }, function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -226,13 +220,13 @@ exports.deleteFeira = (request, response, next) => {
                 else {
 
                     if (res.deletedCount != 0) {
-                    
+
                         response.status(status.OK).send(JSON.stringify("Feira deletada com sucesso."));
-                    
+
                     } else {
-                    
+
                         response.status(status.OK).send(JSON.stringify("Feira nao encontrada."));
-                    
+
                     }
                 }
                 db.close();

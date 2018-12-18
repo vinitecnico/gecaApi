@@ -53,8 +53,7 @@ exports.getOnlyPerfil = (request, response, next) => {
 
         } else {
             
-            var query = { idPerfil: parseInt(request.params.id) };
-            db.db("baseinit").collection("perfil").find(query).toArray(function (err, res) {
+            db.db("baseinit").collection("perfil").find({ idPerfil: parseInt(request.params.id) }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -140,8 +139,7 @@ exports.putPerfil = (request, response, next) => {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
-
-            var query = { idPerfil: parseInt(request.params.id) };
+            
             var newvalues = {
                 $set: {
                     "nomePerfil": request.body.nomePerfil,
@@ -149,7 +147,7 @@ exports.putPerfil = (request, response, next) => {
                 }
             }
 
-            db.db("baseinit").collection("perfil").updateOne(query, newvalues, function (err, res) {
+            db.db("baseinit").collection("perfil").updateOne({ idPerfil: parseInt(request.params.id) }, newvalues, function (err, res) {
                 
                 if (err) {
                 
@@ -189,8 +187,8 @@ exports.deletePerfil = (request, response, next) => {
 
         } else {
             /// DataBase
-            var query = { idPerfil: parseInt(request.params.id) };
-            db.db("baseinit").collection("perfil").deleteOne(query, function (err, res) {
+            
+            db.db("baseinit").collection("perfil").deleteOne({ idPerfil: parseInt(request.params.id) }, function (err, res) {
 
                 if (err) {
                 

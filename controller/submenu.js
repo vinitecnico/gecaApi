@@ -51,8 +51,8 @@ exports.getOnlySubMenu = (request, response, next) => {
 
         } else {
             
-            var query = { idSubMenu: parseInt(request.params.id) };
-            db.db("baseinit").collection("submenu").find(query).toArray(function (err, res) {
+            
+            db.db("baseinit").collection("submenu").find({ idSubMenu: parseInt(request.params.id) }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -91,7 +91,7 @@ exports.postSubMenu = (request, response, next) => {
                 
                 if (err) {
                 
-                    response.status(400).send(JSON.stringify(err));
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                 
                 }else {
 
@@ -141,7 +141,7 @@ exports.putSubMenu = (request, response, next) => {
         } else {
             
             /// DataBase
-            var query = { idSubMenu: parseInt(request.params.id) };
+            
             var newvalues = {
                 $set: {
                     "nomeSubMenu": request.body.nomeSubMenu,
@@ -149,7 +149,7 @@ exports.putSubMenu = (request, response, next) => {
                     "dataUpdate": new Date(Date.now())
                 }
             }
-            db.db("baseinit").collection("submenu").updateOne(query, newvalues, function (err, res) {
+            db.db("baseinit").collection("submenu").updateOne({ idSubMenu: parseInt(request.params.id) }, newvalues, function (err, res) {
              
                 if (err) {
              

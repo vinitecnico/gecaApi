@@ -46,8 +46,7 @@ exports.getOnlyUser = (request, response, next) => {
 
         } else {
             
-            var query = { cpf: parseInt(request.params.id) };
-            db.db("baseinit").collection("users").find(query).toArray(function (err, res) {
+            db.db("baseinit").collection("users").find({ cpf: parseInt(request.params.id) }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -84,8 +83,7 @@ exports.postUser = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            var query = { cpf: parseInt(request.body.cpf) };
-            dbo.collection("users").find(query).toArray(function (err, res) {
+            dbo.collection("users").find({ cpf: parseInt(request.body.cpf) }).toArray(function (err, res) {
                 
                 if (err) {
 
@@ -161,7 +159,6 @@ exports.putUser = (request, response, next) => {
         } else {
 
             /// DataBase
-            var query = { cpf: parseInt(request.params.id) };
             var newvalues = {
                 $set: {
                     "nome": request.body.nome,
@@ -181,7 +178,7 @@ exports.putUser = (request, response, next) => {
                     "dataUpdate": new Date(Date.now())
                 }
             }
-            db.db("baseinit").collection("users").updateOne(query, newvalues, function (err, res) {
+            db.db("baseinit").collection("users").updateOne({ cpf: parseInt(request.params.id) }, newvalues, function (err, res) {
                 
                 if (err) {
                 
@@ -222,8 +219,7 @@ exports.deleteUser = (request, response, next) => {
         } else {
             /// DataBase
             
-            var query = { cpf: parseInt(request.params.id) };
-            db.db("baseinit").collection("users").deleteOne(query, function (err, res) {
+            db.db("baseinit").collection("users").deleteOne({ cpf: parseInt(request.params.id) }, function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));

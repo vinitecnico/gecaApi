@@ -51,8 +51,7 @@ exports.getOnlyMenu = (request, response, next) => {
 
         } else {
             
-            var query = { idMenu: parseInt(request.params.id) };
-            db.db("baseinit").collection("menu").find(query).toArray(function (err, res) {
+            db.db("baseinit").collection("menu").find({ idMenu: parseInt(request.params.id) }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -140,14 +139,14 @@ exports.putMenu = (request, response, next) => {
         } else {
             
             /// DataBase
-            var query = { idMenu: parseInt(request.params.id) };
+            
             var newvalues = {
                 $set: {
                     "nomeMenu": request.body.nomeMenu,
                     "dataUpdate": new Date(Date.now())
                 }
             }
-            db.db("baseinit").collection("menu").updateOne(query, newvalues, function (err, res) {
+            db.db("baseinit").collection("menu").updateOne({ idMenu: parseInt(request.params.id) }, newvalues, function (err, res) {
              
                 if (err) {
              
@@ -185,9 +184,8 @@ exports.deleteMenu = (request, response, next) => {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
-                        
-            var query = { idMenu: parseInt(request.params.id) };
-            db.db("baseinit").collection("menu").deleteOne(query, function (err, res) {
+            
+            db.db("baseinit").collection("menu").deleteOne({ idMenu: parseInt(request.params.id) }, function (err, res) {
                 
                 if (err) {
                 

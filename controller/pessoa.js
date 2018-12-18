@@ -84,8 +84,7 @@ exports.postPessoa = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            var query = { "dados_pessoais.cpf": request.body.dados_pessoais.cpf };
-            dbo.collection("pessoa").find(query).toArray(function (err, res) {
+            dbo.collection("pessoa").find({ "dados_pessoais.cpf": request.body.dados_pessoais.cpf }).toArray(function (err, res) {
 
                 if (err) {
 
