@@ -84,7 +84,7 @@ exports.postFeira = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("feiras").find({ zipcode: request.body.zipcode, weekday: request.body.weekday }).toArray(function (err, res) {
+            dbo.collection("feiras").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
 
                 if (err) {
 
@@ -172,7 +172,7 @@ exports.putFeira = (request, response, next) => {
                 }
             }
 
-            db.db("baseinit").collection("feiras").updateOne({ zipcode: request.body.zipcode, weekday: request.body.weekday }, newvalues, function (err, res) {
+            db.db("baseinit").collection("feiras").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
 
                 if (err) {
 
@@ -212,7 +212,7 @@ exports.deleteFeira = (request, response, next) => {
 
         } else {
             /// DataBase            
-            db.db("baseinit").collection("feiras").deleteOne({ zipcode: request.params.id, weekday: request.body.weekday, name: request.body.name }, function (err, res) {
+            db.db("baseinit").collection("feiras").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));

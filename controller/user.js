@@ -84,7 +84,7 @@ exports.postUser = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("users").find({ cpf: parseInt(request.body.cpf) }).toArray(function (err, res) {
+            dbo.collection("users").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
                 
                 if (err) {
 
@@ -102,7 +102,7 @@ exports.postUser = (request, response, next) => {
                         ///Object para inserção
                         var myobj = {
                             "nome": request.body.nome,
-                            "cpf": parseInt(request.body.cpf),
+                            "cpf": request.body.cpf,
                             "telefone": request.body.telefone,
                             "email": request.body.email,
                             "senha": request.body.senha,
@@ -179,7 +179,7 @@ exports.putUser = (request, response, next) => {
                     "dataUpdate": new Date(Date.now())
                 }
             }
-            db.db("baseinit").collection("users").updateOne({ cpf: parseInt(request.params.id) }, newvalues, function (err, res) {
+            db.db("baseinit").collection("users").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
                 
                 if (err) {
                 
@@ -220,7 +220,7 @@ exports.deleteUser = (request, response, next) => {
         } else {
             /// DataBase
             
-            db.db("baseinit").collection("users").deleteOne({ cpf: parseInt(request.params.id) }, function (err, res) {
+            db.db("baseinit").collection("users").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));

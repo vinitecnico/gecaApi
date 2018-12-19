@@ -84,7 +84,7 @@ exports.postColegio = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("colegios").find({ "zipcode": request.body.zipcode }).toArray(function (err, res) {
+            dbo.collection("colegios").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
 
                 if (err) {
 
@@ -178,7 +178,7 @@ exports.putColegio = (request, response, next) => {
                 }
             }
 
-            db.db("baseinit").collection("colegios").updateOne({ "zipcode": request.params.id }, newvalues, function (err, res) {
+            db.db("baseinit").collection("colegios").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
 
                 if (err) {
 
@@ -218,7 +218,7 @@ exports.deleteColegio = (request, response, next) => {
 
         } else {
             /// DataBase            
-            db.db("baseinit").collection("colegios").deleteOne({ "zipcode": request.params.id }, function (err, res) {
+            db.db("baseinit").collection("colegios").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));

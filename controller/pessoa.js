@@ -85,7 +85,7 @@ exports.postPessoa = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("pessoa").find({ "dados_pessoais.cpf": request.body.dados_pessoais.cpf }).toArray(function (err, res) {
+            dbo.collection("pessoa").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
 
                 if (err) {
 
@@ -265,7 +265,7 @@ exports.putPessoa = (request, response, next) => {
                 }
             }
             
-            db.db("baseinit").collection("pessoa").updateOne({"dados_pessoais.cpf" : request.params.id}, newvalues, function (err, res) {
+            db.db("baseinit").collection("pessoa").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
 
                 if (err) {
 
@@ -306,7 +306,7 @@ exports.deletePessoa = (request, response, next) => {
         } else {
             /// DataBase
 
-            db.db("baseinit").collection("pessoa").deleteOne({"dados_pessoais.cpf" : request.params.id}, function (err, res) {
+            db.db("baseinit").collection("pessoa").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));

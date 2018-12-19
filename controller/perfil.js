@@ -148,7 +148,7 @@ exports.putPerfil = (request, response, next) => {
                 }
             }
 
-            db.db("baseinit").collection("perfil").updateOne({ idPerfil: parseInt(request.params.id) }, newvalues, function (err, res) {
+            db.db("baseinit").collection("perfil").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
                 
                 if (err) {
                 
@@ -189,7 +189,7 @@ exports.deletePerfil = (request, response, next) => {
         } else {
             /// DataBase
             
-            db.db("baseinit").collection("perfil").deleteOne({ idPerfil: parseInt(request.params.id) }, function (err, res) {
+            db.db("baseinit").collection("perfil").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
 
                 if (err) {
                 

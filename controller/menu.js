@@ -147,7 +147,7 @@ exports.putMenu = (request, response, next) => {
                     "dataUpdate": new Date(Date.now())
                 }
             }
-            db.db("baseinit").collection("menu").updateOne({ idMenu: parseInt(request.params.id) }, newvalues, function (err, res) {
+            db.db("baseinit").collection("menu").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
              
                 if (err) {
              
@@ -186,7 +186,7 @@ exports.deleteMenu = (request, response, next) => {
 
         } else {
             
-            db.db("baseinit").collection("menu").deleteOne({ idMenu: parseInt(request.params.id) }, function (err, res) {
+            db.db("baseinit").collection("menu").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
                 
                 if (err) {
                 

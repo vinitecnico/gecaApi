@@ -84,7 +84,7 @@ exports.postEmpresa = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("empresas").find({ "cnpj": parseInt(request.body.cnpj) }).toArray(function (err, res) {
+            dbo.collection("empresas").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
 
                 if (err) {
 
@@ -188,7 +188,7 @@ exports.putEmpresa = (request, response, next) => {
                 }
             }
 
-            db.db("baseinit").collection("empresas").updateOne({ "cnpj": parseInt(request.params.id) }, newvalues, function (err, res) {
+            db.db("baseinit").collection("empresas").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
 
                 if (err) {
 
@@ -228,7 +228,7 @@ exports.deleteEmpresa = (request, response, next) => {
 
         } else {
             /// DataBase            
-            db.db("baseinit").collection("empresas").deleteOne({ "cnpj": parseInt(request.params.id) }, function (err, res) {
+            db.db("baseinit").collection("empresas").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));

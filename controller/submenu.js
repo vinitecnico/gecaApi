@@ -98,7 +98,7 @@ exports.postSubMenu = (request, response, next) => {
 
                   let  myobj = {
                         "nomeSubMenu": request.body.nomeSubMenu,
-                        "idMenu": parseInt(request.body.idMenu),
+                        "idMenu": request.body.idMenu,
                         "idSubMenu": res.length + 1,
                         "datacreate": new Date(Date.now()),
                         "dataUpdate": new Date(Date.now())
@@ -150,7 +150,7 @@ exports.putSubMenu = (request, response, next) => {
                     "dataUpdate": new Date(Date.now())
                 }
             }
-            db.db("baseinit").collection("submenu").updateOne({ idSubMenu: parseInt(request.params.id) }, newvalues, function (err, res) {
+            db.db("baseinit").collection("submenu").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
              
                 if (err) {
              
@@ -188,9 +188,8 @@ exports.deleteSubMenu = (request, response, next) => {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
-                        
-            var query = { idSubMenu: parseInt(request.params.id) };
-            db.db("baseinit").collection("submenu").deleteOne(query, function (err, res) {
+            
+            db.db("baseinit").collection("submenu").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
                 
                 if (err) {
                 
