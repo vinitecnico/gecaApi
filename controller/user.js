@@ -84,7 +84,7 @@ exports.postUser = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("users").find({ cpf: parseInt(request.params.id) }).toArray(function (err, res) {
+            dbo.collection("users").find({ cpf: parseInt(request.body.cpf) }).toArray(function (err, res) {
                 
                 if (err) {
 
