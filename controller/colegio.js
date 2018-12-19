@@ -1,5 +1,6 @@
 var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
+var ObjectId = require('mongodb').ObjectId;
 
 
 ///GET Colegio
@@ -46,7 +47,7 @@ exports.getOnlyColegio = (request, response, next) => {
 
         } else {
 
-            db.db("baseinit").collection("colegios").find({ "zipcode": parseInt(request.params.id) }).toArray(function (err, res) {
+            db.db("baseinit").collection("colegios").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));

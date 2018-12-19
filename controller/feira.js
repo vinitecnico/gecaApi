@@ -1,5 +1,6 @@
 var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
+var ObjectId = require('mongodb').ObjectId;
 
 
 ///GET Feira
@@ -46,7 +47,7 @@ exports.getOnlyFeira = (request, response, next) => {
 
         } else {
 
-            db.db("baseinit").collection("feiras").find({ "zipcode": request.params.id }).toArray(function (err, res) {
+            db.db("baseinit").collection("feiras").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));

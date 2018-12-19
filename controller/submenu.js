@@ -1,5 +1,6 @@
 var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
+var ObjectId = require('mongodb').ObjectId;
 
 ///GET SubMenu
 exports.getSubMenu = (request, response, next) => {
@@ -52,7 +53,7 @@ exports.getOnlySubMenu = (request, response, next) => {
         } else {
             
             
-            db.db("baseinit").collection("submenu").find({ idSubMenu: parseInt(request.params.id) }).toArray(function (err, res) {
+            db.db("baseinit").collection("submenu").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));

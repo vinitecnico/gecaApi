@@ -1,5 +1,6 @@
 var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
+var ObjectId = require('mongodb').ObjectId;
 
 
 ///GET USER
@@ -47,7 +48,7 @@ exports.getOnlyPessoa = (request, response, next) => {
         } else {
 
             
-            db.db("baseinit").collection("pessoa").find({"dados_pessoais.cpf" : request.params.id}).toArray(function (err, res) {
+            db.db("baseinit").collection("pessoa").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
