@@ -228,7 +228,7 @@ exports.deleteColegio = (request, response, next) => {
 
                     if (res.deletedCount != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Colegio deletada com sucesso."));
+                        response.status(status.GONE).send(JSON.stringify("Colegio deletada com sucesso."));
 
                     } else {
 
