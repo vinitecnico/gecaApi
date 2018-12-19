@@ -23,7 +23,7 @@ exports.getFeira = (request, response, next) => {
                     if (res.length != 0) {
                         response.status(status.OK).send(res);
                     } else {
-                        response.status(status.OK).send(JSON.stringify("Nenhum Feria foi Cadastrada."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Feria foi Cadastrada."));
                     }
 
                 }
@@ -58,7 +58,7 @@ exports.getOnlyFeira = (request, response, next) => {
                     if (res.length != 0) {
                         response.status(status.OK).send(res);
                     } else {
-                        response.status(status.OK).send(JSON.stringify("Feira nao encontrada."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Feira nao encontrada."));
                     }
 
                 }
@@ -95,7 +95,7 @@ exports.postFeira = (request, response, next) => {
 
                     if (res.length != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Cadastro da Feira foi encontrado em nossa base."));
+                        response.status(status.UNAUTHORIZED).send(JSON.stringify("Cadastro da Feira foi encontrado em nossa base."));
 
                     } else {
 
@@ -183,11 +183,11 @@ exports.putFeira = (request, response, next) => {
 
                     if (res.modifiedCount != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Feira atualizada com sucesso."));
+                        response.status(status.CREATED).send(JSON.stringify("Feira atualizada com sucesso."));
 
                     } else {
 
-                        response.status(status.OK).send(JSON.stringify("Feira nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Feira nao encontrado"));
 
                     }
                 }
@@ -222,11 +222,11 @@ exports.deleteFeira = (request, response, next) => {
 
                     if (res.deletedCount != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Feira deletada com sucesso."));
+                        response.status(status.GONE).send(JSON.stringify("Feira deletada com sucesso."));
 
                     } else {
 
-                        response.status(status.OK).send(JSON.stringify("Feira nao encontrada."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Feira nao encontrada."));
 
                     }
                 }

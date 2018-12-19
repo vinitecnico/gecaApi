@@ -27,7 +27,7 @@ exports.getMenu = (request, response, next) => {
                     
                     }else{
                      
-                        response.status(status.OK).send(JSON.stringify("Nenhum Menu foi cadastrado."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Menu foi cadastrado."));
                     
                     }                    
                 }
@@ -63,7 +63,7 @@ exports.getOnlyMenu = (request, response, next) => {
                     if (res.length != 0) {
                         response.status(status.OK).send(res);
                     } else {
-                        response.status(status.OK).send(JSON.stringify("Menu nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Menu nao encontrado"));
                     }
 
                 }
@@ -157,11 +157,11 @@ exports.putMenu = (request, response, next) => {
 
                     if (res.modifiedCount != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Menu atualizado com sucesso."));
+                        response.status(status.CREATED).send(JSON.stringify("Menu atualizado com sucesso."));
                     
                     } else {
                     
-                        response.status(status.OK).send(JSON.stringify("Menu nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Menu nao encontrado"));
                     
                     }
                 }
@@ -196,11 +196,11 @@ exports.deleteMenu = (request, response, next) => {
 
                     if (res.deletedCount != 0) {
                     
-                        response.status(status.OK).send(JSON.stringify("Menu deletado com sucesso."));
+                        response.status(status.GONE).send(JSON.stringify("Menu deletado com sucesso."));
                     
                     } else {
                     
-                        response.status(status.OK).send(JSON.stringify("Menu nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Menu nao encontrado"));
                     
                     }
                 }

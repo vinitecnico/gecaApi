@@ -23,7 +23,7 @@ exports.getColegio = (request, response, next) => {
                     if (res.length != 0) {
                         response.status(status.OK).send(res);
                     } else {
-                        response.status(status.OK).send(JSON.stringify("Nenhum Colegio foi Cadastrada."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Colegio foi Cadastrada."));
                     }
 
                 }
@@ -58,7 +58,7 @@ exports.getOnlyColegio = (request, response, next) => {
                     if (res.length != 0) {
                         response.status(status.OK).send(res);
                     } else {
-                        response.status(status.OK).send(JSON.stringify("Colegio nao encontrada."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Colegio nao encontrada."));
                     }
 
                 }
@@ -84,7 +84,7 @@ exports.postColegio = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("colegios").find({}).toArray(function (err, res) {
+            dbo.collection("colegios").find({name : request.body.name , zipcode: request.body.zipcode}).toArray(function (err, res) {
 
                 if (err) {
 
@@ -95,7 +95,7 @@ exports.postColegio = (request, response, next) => {
 
                     if (res.length != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Cadastro da Colegio foi encontrado em nossa base."));
+                        response.status(status.UNAUTHORIZED).send(JSON.stringify("Cadastro do Colegio foi encontrado em nossa base."));
 
                     } else {
 
@@ -189,11 +189,11 @@ exports.putColegio = (request, response, next) => {
 
                     if (res.modifiedCount != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Colegio atualizada com sucesso."));
+                        response.status(status.CREATED).send(JSON.stringify("Colegio atualizada com sucesso."));
 
                     } else {
 
-                        response.status(status.OK).send(JSON.stringify("Colegio nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Colegio nao encontrado"));
 
                     }
                 }
@@ -232,7 +232,7 @@ exports.deleteColegio = (request, response, next) => {
 
                     } else {
 
-                        response.status(status.OK).send(JSON.stringify("Colegio nao encontrada."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Colegio nao encontrada."));
 
                     }
                 }

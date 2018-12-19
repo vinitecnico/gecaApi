@@ -27,7 +27,7 @@ exports.getSubMenu = (request, response, next) => {
                     
                     }else{
                      
-                        response.status(status.OK).send(JSON.stringify("Nenhum SubMenu foi cadastrado."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum SubMenu foi cadastrado."));
                     
                     }                    
                 }
@@ -64,7 +64,7 @@ exports.getOnlySubMenu = (request, response, next) => {
                     if (res.length != 0) {
                         response.status(status.OK).send(res);
                     } else {
-                        response.status(status.OK).send(JSON.stringify("SubMenu nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("SubMenu nao encontrado"));
                     }
 
                 }
@@ -160,11 +160,11 @@ exports.putSubMenu = (request, response, next) => {
 
                     if (res.modifiedCount != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("SubMenu atualizado com sucesso."));
+                        response.status(status.CREATED).send(JSON.stringify("SubMenu atualizado com sucesso."));
                     
                     } else {
                     
-                        response.status(status.OK).send(JSON.stringify("SubMenu nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("SubMenu nao encontrado"));
                     
                     }
                 }
@@ -199,11 +199,11 @@ exports.deleteSubMenu = (request, response, next) => {
 
                     if (res.deletedCount != 0) {
                     
-                        response.status(status.OK).send(JSON.stringify("SubMenu deletado com sucesso."));
+                        response.status(status.GONE).send(JSON.stringify("SubMenu deletado com sucesso."));
                     
                     } else {
                     
-                        response.status(status.OK).send(JSON.stringify("SubMenu nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("SubMenu nao encontrado"));
                     
                     }
                 }

@@ -23,7 +23,7 @@ exports.getUsers = (request, response, next) => {
                     if(res.length != 0){
                         response.status(status.OK).send(res);
                     }else{
-                        response.status(status.OK).send(JSON.stringify("Nenhum usuario foi Cadastrado."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum usuario foi Cadastrado."));
                     }
                     
                 }
@@ -58,7 +58,7 @@ exports.getOnlyUser = (request, response, next) => {
                     if (res.length != 0) {
                         response.status(status.OK).send(res);
                     } else {
-                        response.status(status.OK).send(JSON.stringify("Usuario nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Usuario nao encontrado"));
                     }
 
                 }
@@ -95,7 +95,7 @@ exports.postUser = (request, response, next) => {
 
                     if (res.length != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Cadastro do usuario foi encontrado em nossa base."));
+                        response.status(status.UNAUTHORIZED).send(JSON.stringify("Cadastro do usuario foi encontrado em nossa base."));
 
                     } else {
 
@@ -190,11 +190,11 @@ exports.putUser = (request, response, next) => {
                 
                     if (res.modifiedCount != 0) {
                 
-                        response.status(status.OK).send(JSON.stringify("Usuario atualizado com sucesso."));
+                        response.status(status.CREATED).send(JSON.stringify("Usuario atualizado com sucesso."));
                 
                     } else {
                 
-                        response.status(status.OK).send(JSON.stringify("Usuario nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Usuario nao encontrado"));
                 
                     }
                 }
@@ -230,11 +230,11 @@ exports.deleteUser = (request, response, next) => {
 
                     if (res.deletedCount != 0) {
                     
-                        response.status(status.OK).send(JSON.stringify("Usuario deletado com sucesso."));
+                        response.status(status.GONE).send(JSON.stringify("Usuario deletado com sucesso."));
                     
                     } else {
                     
-                        response.status(status.OK).send(JSON.stringify("Usuario nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Usuario nao encontrado"));
                     
                     }
                 }

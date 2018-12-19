@@ -23,7 +23,7 @@ exports.getEmpresa = (request, response, next) => {
                     if (res.length != 0) {
                         response.status(status.OK).send(res);
                     } else {
-                        response.status(status.OK).send(JSON.stringify("Nenhum Empresa foi Cadastrada."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Empresa foi Cadastrada."));
                     }
 
                 }
@@ -58,7 +58,7 @@ exports.getOnlyEmpresa = (request, response, next) => {
                     if (res.length != 0) {
                         response.status(status.OK).send(res);
                     } else {
-                        response.status(status.OK).send(JSON.stringify("Empresa nao encontrada."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Empresa nao encontrada."));
                     }
 
                 }
@@ -84,7 +84,7 @@ exports.postEmpresa = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("empresas").find({ cnpj : request.body.cnpj }).toArray(function (err, res) {
+            dbo.collection("empresas").find({ cnpj: request.body.cnpj }).toArray(function (err, res) {
 
                 if (err) {
 
@@ -95,26 +95,27 @@ exports.postEmpresa = (request, response, next) => {
 
                     if (res.length != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Cadastro da Empresa foi encontrado em nossa base."));
+                        response.status(status.UNAUTHORIZED).send(JSON.stringify("Cadastro da Empresa foi encontrado em nossa base."));
 
                     } else {
 
                         ///Object para inserção
                         var myobj = {
-                            "nomefantasia": request.body.nomefantasia,
-                            "cnpj": parseInt(request.body.cnpj),
-                            "segmento": request.body.segmento,
-                            "atividade": request.body.atividade,
-                            "cep": parseInt(request.body.cep),
-                            "endereco": request.body.endereco,
-                            "num": request.body.num,
-                            "complemento": request.body.casa,
-                            "bairro": request.body.bairro,
-                            "cidade": request.body.cidade,
-                            "estado": request.body.estado,
-                            "contato_principal": request.body.contato_principal,
-                            "telefone": request.body.telefone,
-                            "celular": request.body.celular,
+                            "name": request.body.name,
+                            "cnpj": request.body.cnpj,
+                            "segment": request.body.segment,
+                            "activity": request.body.activity,
+                            "zipcode": request.body.zipcode,
+                            "address": request.body.address,
+                            "numberAddress": request.body.numberAddress,
+                            "complement": request.body.complement,
+                            "neighborhood": request.body.neighborhood,
+                            "city": request.body.city,
+                            "state": request.body.state,
+                            "gps": request.body.gps,
+                            "mainContact": request.body.mainContact,
+                            "phone": request.body.phone,
+                            "mobile": request.body.mobile,
                             "email": request.body.email,
                             "facebook": request.body.facebook,
                             "twitter": request.body.twitter,
@@ -166,20 +167,21 @@ exports.putEmpresa = (request, response, next) => {
             /// DataBase            
             var newvalues = {
                 $set: {
-                    "nomefantasia": request.body.nomefantasia,
-                    "cnpj": parseInt(request.body.cnpj),
-                    "segmento": request.body.segmento,
-                    "atividade": request.body.atividade,
-                    "cep": parseInt(request.body.cep),
-                    "endereco": request.body.endereco,
-                    "num": request.body.num,
-                    "complemento": request.body.complemento,
-                    "bairro": request.body.bairro,
-                    "cidade": request.body.cidade,
-                    "estado": request.body.estado,
-                    "contato_principal": request.body.contato_principal,
-                    "telefone": request.body.telefone,
-                    "celular": request.body.celular,
+                    "name": request.body.name,
+                    "cnpj": request.body.cnpj,
+                    "segment": request.body.segment,
+                    "activity": request.body.activity,
+                    "zipcode": request.body.zipcode,
+                    "address": request.body.address,
+                    "numberAddress": request.body.numberAddress,
+                    "complement": request.body.complement,
+                    "neighborhood": request.body.neighborhood,
+                    "city": request.body.city,
+                    "state": request.body.state,
+                    "gps": request.body.gps,
+                    "mainContact": request.body.mainContact,
+                    "phone": request.body.phone,
+                    "mobile": request.body.mobile,
                     "email": request.body.email,
                     "facebook": request.body.facebook,
                     "twitter": request.body.twitter,
@@ -199,11 +201,11 @@ exports.putEmpresa = (request, response, next) => {
 
                     if (res.modifiedCount != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Empresa atualizada com sucesso."));
+                        response.status(status.CREATED).send(JSON.stringify("Empresa atualizada com sucesso."));
 
                     } else {
 
-                        response.status(status.OK).send(JSON.stringify("Empresa nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Empresa nao encontrado"));
 
                     }
                 }
@@ -228,7 +230,7 @@ exports.deleteEmpresa = (request, response, next) => {
 
         } else {
             /// DataBase            
-            db.db("baseinit").collection("empresas").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
+            db.db("baseinit").collection("empresas").deleteOne({ cnpj: request.body.cnpj }, function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -238,11 +240,11 @@ exports.deleteEmpresa = (request, response, next) => {
 
                     if (res.deletedCount != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Empresa deletada com sucesso."));
+                        response.status(status.GONE).send(JSON.stringify("Empresa deletada com sucesso."));
 
                     } else {
 
-                        response.status(status.OK).send(JSON.stringify("Empresa nao encontrada."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Empresa nao encontrada."));
 
                     }
                 }

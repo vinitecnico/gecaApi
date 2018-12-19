@@ -28,7 +28,7 @@ exports.getPerfil = (request, response, next) => {
                     
                     }else{
                     
-                        response.status(status.OK).send(JSON.stringify("Nenhum Perfil foi cadastrado."));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Perfil foi cadastrado."));
                     
                     }
                     
@@ -65,7 +65,7 @@ exports.getOnlyPerfil = (request, response, next) => {
                     if (res.length != 0) {
                         response.status(status.OK).send(res);
                     } else {
-                        response.status(status.OK).send(JSON.stringify("Perfil nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Perfil nao encontrado"));
                     }
 
                 }
@@ -158,11 +158,11 @@ exports.putPerfil = (request, response, next) => {
 
                     if (res.modifiedCount != 0) {
 
-                        response.status(status.OK).send(JSON.stringify("Perfil atualizado com sucesso."));
+                        response.status(status.CREATED).send(JSON.stringify("Perfil atualizado com sucesso."));
                     
                     } else {
                     
-                        response.status(status.OK).send(JSON.stringify("Perfil nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Perfil nao encontrado"));
                     
                     }
 
@@ -199,11 +199,11 @@ exports.deletePerfil = (request, response, next) => {
 
                     if (res.deletedCount != 0) {
                     
-                        response.status(status.OK).send(JSON.stringify("Perfil deletado com sucesso."));
+                        response.status(status.GONE).send(JSON.stringify("Perfil deletado com sucesso."));
                     
                     } else {
                     
-                        response.status(status.OK).send(JSON.stringify("Perfil nao encontrado"));
+                        response.status(status.NOT_FOUND).send(JSON.stringify("Perfil nao encontrado"));
                     
                     }
                 }
