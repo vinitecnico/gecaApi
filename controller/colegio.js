@@ -84,7 +84,7 @@ exports.postColegio = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("colegios").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
+            dbo.collection("colegios").find({}).toArray(function (err, res) {
 
                 if (err) {
 

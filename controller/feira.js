@@ -84,7 +84,7 @@ exports.postFeira = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("feiras").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
+            dbo.collection("feiras").find({}).toArray(function (err, res) {
 
                 if (err) {
 

@@ -84,7 +84,7 @@ exports.postEmpresa = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("empresas").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
+            dbo.collection("empresas").find({ cnpj : request.body.cnpj }).toArray(function (err, res) {
 
                 if (err) {
 
