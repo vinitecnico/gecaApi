@@ -11,6 +11,7 @@ const controllerPessoa = require("../controller/pessoa");
 const controllerFeira = require("../controller/feira");
 const controllerEmpresa = require("../controller/empresas");
 const controllerColegio = require("../controller/colegio");
+const controllerMaps = require("../controller/maps");
 
 /// EXPRESS
 const routes = express.Router();
@@ -74,5 +75,8 @@ routes.get('/colegio', controllerColegio.getColegio);
 routes.get('/colegio/:id', controllerColegio.getColegio);
 routes.put('/colegio/:id', controllerColegio.putColegio);
 routes.delete('/colegio/:id', controllerColegio.deleteColegio);
+
+///Maps
+routes.get('/maps', controllerMaps.getMaps);
 
 module.exports = routes
