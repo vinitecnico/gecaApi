@@ -48,7 +48,7 @@ exports.getOnlyPessoa = (request, response, next) => {
         } else {
 
             
-            db.db("baseinit").collection("pessoa").find({ _id: ObjectId(request.params.id) }).toArray(function (err, res) {
+            db.db("baseinit").collection("pessoa").find({ "dados_pessoais.cpf": request.params.id }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -103,50 +103,48 @@ exports.postPessoa = (request, response, next) => {
                         ///Object para inserção
                         var myobj = {
                             "dados_pessoais": {
-                                "nome": request.body.dados_pessoais.nome,
+                                "name": request.body.dados_pessoais.name,
                                 "cpf": request.body.dados_pessoais.cpf,
                                 "rg": request.body.dados_pessoais.rg,
-                                "datanasc": "1985-05-11T00:00:00.000Z",
+                                "birthDate": request.body.dados_pessoais.birthDate,
                                 "etnia": request.body.dados_pessoais.etnia,
-                                "nomemae": request.body.dados_pessoais.nomemae,
-                                "idsexo": parseInt(request.body.dados_pessoais.idsexo),
-                                "idtransgenero": parseInt(request.body.dados_pessoais.idtransgenero),
-                                "idorientsex": parseInt(request.body.dados_pessoais.idorientsex),
-                                "nomesocial": request.body.dados_pessoais.nomesocial
+                                "motherName": request.body.dados_pessoais.motherName,
+                                "sexo": request.body.dados_pessoais.sexo,
+                                "transgenero": request.body.dados_pessoais.transgenero,
+                                "orientacosexusal": request.body.dados_pessoais.orientacosexusal,
+                                "socialName": request.body.dados_pessoais.socialName
                             },
                             "endereco_contato": {
-                                "cep": parseInt(request.body.endereco_contato.cep),
-                                "end": request.body.endereco_contato.end,
-                                "comp": request.body.endereco_contato.comp,
-                                "bairro": request.body.endereco_contato.bairro,
-                                "cidade": request.body.endereco_contato.cdade,
-                                "estado": request.body.endereco_contato.estado,
-                                "posgps": [
-                                    request.body.endereco_contato.posgps[0],
-                                    request.body.endereco_contato.posgps[1]
-                                ],
-                                "telefone": request.body.endereco_contato.telefone,
-                                "celular": request.body.endereco_contato.celular,
+                                "zipcode": request.body.endereco_contato.zipcode,
+                                "address": request.body.endereco_contato.address,
+                                "numberAddress": request.body.endereco_contato.numberAddress,
+                                "complement": request.body.endereco_contato.complement,
+                                "neighborhood": request.body.endereco_contato.neighborhood,
+                                "city": request.body.endereco_contato.city,
+                                "state": request.body.endereco_contato.state,
+                                "gps":     request.body.endereco_contato.gps,
+                                "phone": request.body.endereco_contato.phone,
+                                "mobile": request.body.endereco_contato.mobile,
                                 "email": request.body.endereco_contato.email,
                                 "facebook": request.body.endereco_contato.facebook,
                                 "twitter": request.body.endereco_contato.twitter,
                                 "instagram": request.body.endereco_contato.instagram
                             },
                             "profissional_eleitoral": {
-                                "empresa": request.body.profissional_eleitoral.empresa,
-                                "dataadmissao": "2018-12-14T14:57:13.371Z",
-                                "datademissao": "2018-12-14T14:57:13.371Z",
-                                "funcaoexercida": request.body.profissional_eleitoral.funcaoexercida,
-                                "localdetrabalho": request.body.profissional_eleitoral.localdetrabalho,
-                                "idSindicalizado": parseInt(request.body.profissional_eleitoral.idSindicalizado),
-                                "numassociacao": parseInt(request.body.profissional_eleitoral.numassociacao),
-                                "idMilitante": parseInt(request.body.profissional_eleitoral.idMilitante),
-                                "indicacaodiretor": request.body.profissional_eleitoral.indicacaodiretor,
-                                "tituloeleitoral": parseInt(request.body.profissional_eleitoral.tituloeleitoral),
-                                "zona": parseInt(request.body.profissional_eleitoral.zona),
-                                "secao": parseInt(request.body.profissional_eleitoral.secao),
-                                "municipio": request.body.profissional_eleitoral.secao.municipio,
-                                "uf": request.body.profissional_eleitoral.uf
+                                "company": request.body.profissional_eleitoral.company,
+                                "admissionDate": request.body.profissional_eleitoral.admissionDate,
+                                "terminationDate": request.body.profissional_eleitoral.terminationDate,
+                                "positionCompany": request.body.profissional_eleitoral.positionCompany,
+                                "workplace": request.body.profissional_eleitoral.workplace,
+                                "Sindicalizado": request.body.profissional_eleitoral.Sindicalizado,
+                                "associationNumber": request.body.profissional_eleitoral.associationNumber,
+                                "militante": request.body.profissional_eleitoral.militante,
+                                "directorsindication": request.body.profissional_eleitoral.directorsindication,
+                                "electoraltitle": request.body.profissional_eleitoral.electoraltitle,
+                                "zone": request.body.profissional_eleitoral.zone,
+                                "section": request.body.profissional_eleitoral.section,
+                                "county": request.body.profissional_eleitoral.county,
+                                "state": request.body.profissional_eleitoral.state
                             },
                             "notificacoes_anotacoes": {
                                 "correios": request.body.notificacoes_anotacoes.correios,
@@ -154,8 +152,8 @@ exports.postPessoa = (request, response, next) => {
                                 "sms": request.body.notificacoes_anotacoes.sms,
                                 "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
                                 "email": request.body.notificacoes_anotacoes.email,
-                                "pontuacao": parseInt(request.body.notificacoes_anotacoes.pontuacao),
-                                "historico": request.body.notificacoes_anotacoes.historico,
+                                "score": request.body.notificacoes_anotacoes.score,
+                                "history": request.body.notificacoes_anotacoes.history,
                                 "datacreatehistory": new Date(Date.now())
                             },
                             "datacreate": new Date(Date.now()),
@@ -206,50 +204,48 @@ exports.putPessoa = (request, response, next) => {
             var newvalues = {
                 $set: {
                     "dados_pessoais": {
-                        "nome": request.body.dados_pessoais.nome,
+                        "name": request.body.dados_pessoais.name,
                         "cpf": request.body.dados_pessoais.cpf,
                         "rg": request.body.dados_pessoais.rg,
-                        "datanasc": "1985-05-11T00:00:00.000Z",
+                        "birthDate": request.body.dados_pessoais.birthDate,
                         "etnia": request.body.dados_pessoais.etnia,
-                        "nomemae": request.body.dados_pessoais.nomemae,
-                        "idsexo": parseInt(request.body.dados_pessoais.idsexo),
-                        "idtransgenero": parseInt(request.body.dados_pessoais.idtransgenero),
-                        "idorientsex": parseInt(request.body.dados_pessoais.idorientsex),
-                        "nomesocial": request.body.dados_pessoais.nomesocial
+                        "motherName": request.body.dados_pessoais.motherName,
+                        "sexo": request.body.dados_pessoais.sexo,
+                        "transgenero": request.body.dados_pessoais.transgenero,
+                        "orientacosexusal": request.body.dados_pessoais.orientacosexusal,
+                        "socialName": request.body.dados_pessoais.socialName
                     },
                     "endereco_contato": {
-                        "cep": parseInt(request.body.endereco_contato.cep),
-                        "end": request.body.endereco_contato.end,
-                        "comp": request.body.endereco_contato.comp,
-                        "bairro": request.body.endereco_contato.bairro,
-                        "cidade": request.body.endereco_contato.cdade,
-                        "estado": request.body.endereco_contato.estado,
-                        "posgps": [
-                            request.body.endereco_contato.posgps[0],
-                            request.body.endereco_contato.posgps[1]
-                        ],
-                        "telefone": request.body.endereco_contato.telefone,
-                        "celular": request.body.endereco_contato.celular,
+                        "zipcode": request.body.endereco_contato.zipcode,
+                        "address": request.body.endereco_contato.address,
+                        "numberAddress": request.body.endereco_contato.numberAddress,
+                        "complement": request.body.endereco_contato.complement,
+                        "neighborhood": request.body.endereco_contato.neighborhood,
+                        "city": request.body.endereco_contato.city,
+                        "state": request.body.endereco_contato.state,
+                        "gps":     request.body.endereco_contato.gps,
+                        "phone": request.body.endereco_contato.phone,
+                        "mobile": request.body.endereco_contato.mobile,
                         "email": request.body.endereco_contato.email,
                         "facebook": request.body.endereco_contato.facebook,
                         "twitter": request.body.endereco_contato.twitter,
                         "instagram": request.body.endereco_contato.instagram
                     },
                     "profissional_eleitoral": {
-                        "empresa": request.body.profissional_eleitoral.empresa,
-                        "dataadmissao": "2018-12-14T14:57:13.371Z",
-                        "datademissao": "2018-12-14T14:57:13.371Z",
-                        "funcaoexercida": request.body.profissional_eleitoral.funcaoexercida,
-                        "localdetrabalho": request.body.profissional_eleitoral.localdetrabalho,
-                        "idSindicalizado": parseInt(request.body.profissional_eleitoral.idSindicalizado),
-                        "numassociacao": parseInt(request.body.profissional_eleitoral.numassociacao),
-                        "idMilitante": parseInt(request.body.profissional_eleitoral.idMilitante),
-                        "indicacaodiretor": request.body.profissional_eleitoral.indicacaodiretor,
-                        "tituloeleitoral": parseInt(request.body.profissional_eleitoral.tituloeleitoral),
-                        "zona": parseInt(request.body.profissional_eleitoral.zona),
-                        "secao": parseInt(request.body.profissional_eleitoral.secao),
-                        "municipio": request.body.profissional_eleitoral.secao.municipio,
-                        "uf": request.body.profissional_eleitoral.uf
+                        "company": request.body.profissional_eleitoral.company,
+                        "admissionDate": request.body.profissional_eleitoral.admissionDate,
+                        "terminationDate": request.body.profissional_eleitoral.terminationDate,
+                        "positionCompany": request.body.profissional_eleitoral.positionCompany,
+                        "workplace": request.body.profissional_eleitoral.workplace,
+                        "Sindicalizado": request.body.profissional_eleitoral.Sindicalizado,
+                        "associationNumber": request.body.profissional_eleitoral.associationNumber,
+                        "militante": request.body.profissional_eleitoral.militante,
+                        "directorsindication": request.body.profissional_eleitoral.directorsindication,
+                        "electoraltitle": request.body.profissional_eleitoral.electoraltitle,
+                        "zone": request.body.profissional_eleitoral.zone,
+                        "section": request.body.profissional_eleitoral.section,
+                        "county": request.body.profissional_eleitoral.secao.county,
+                        "state": request.body.profissional_eleitoral.state
                     },
                     "notificacoes_anotacoes": {
                         "correios": request.body.notificacoes_anotacoes.correios,
@@ -257,15 +253,14 @@ exports.putPessoa = (request, response, next) => {
                         "sms": request.body.notificacoes_anotacoes.sms,
                         "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
                         "email": request.body.notificacoes_anotacoes.email,
-                        "pontuacao": parseInt(request.body.notificacoes_anotacoes.pontuacao),
-                        "historico": request.body.notificacoes_anotacoes.historico,
-                        "datacreatehistory": new Date(Date.now())
+                        "score": request.body.notificacoes_anotacoes.score,
+                        "history": request.body.notificacoes_anotacoes.history                        
                     },                    
                     "dataUpdate": new Date(Date.now())
                 }
             }
             
-            db.db("baseinit").collection("pessoa").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
+            db.db("baseinit").collection("pessoa").updateOne({ "dados_pessoais.cpf": request.params.id }, newvalues, function (err, res) {
 
                 if (err) {
 
@@ -306,7 +301,7 @@ exports.deletePessoa = (request, response, next) => {
         } else {
             /// DataBase
 
-            db.db("baseinit").collection("pessoa").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
+            db.db("baseinit").collection("pessoa").deleteOne({ "dados_pessoais.cpf": request.params.id }, function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
