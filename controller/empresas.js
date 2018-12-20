@@ -47,7 +47,7 @@ exports.getOnlyEmpresa = (request, response, next) => {
 
         } else {
 
-            db.db("baseinit").collection("empresas").find({ cnpj: ObjectId(request.params.id) }).toArray(function (err, res) {
+            db.db("baseinit").collection("empresas").find({ cnpj: request.params.id }).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
