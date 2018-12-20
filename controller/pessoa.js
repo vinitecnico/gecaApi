@@ -244,7 +244,7 @@ exports.putPessoa = (request, response, next) => {
                         "electoraltitle": request.body.profissional_eleitoral.electoraltitle,
                         "zone": request.body.profissional_eleitoral.zone,
                         "section": request.body.profissional_eleitoral.section,
-                        "county": request.body.profissional_eleitoral.secao.county,
+                        "county": request.body.profissional_eleitoral.county,
                         "state": request.body.profissional_eleitoral.state
                     },
                     "notificacoes_anotacoes": {
