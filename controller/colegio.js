@@ -84,7 +84,7 @@ exports.postColegio = (request, response, next) => {
             var dbo = db.db("baseinit");
 
             ///Verifa se cpf ja existe na base
-            dbo.collection("colegios").find({name : request.body.name , zipcode: request.body.zipcode}).toArray(function (err, res) {
+            dbo.collection("colegios").find({ name: request.body.name, zipcode: request.body.zipcode }).toArray(function (err, res) {
 
                 if (err) {
 
@@ -126,9 +126,7 @@ exports.postColegio = (request, response, next) => {
 
                             }
                             else {
-
                                 response.status(status.OK).send(JSON.stringify("Colegio cadastrada com sucesso"));
-
                             }
 
                             db.close();
