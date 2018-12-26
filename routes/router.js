@@ -13,6 +13,7 @@ const controllerEmpresa = require("../controller/empresas");
 const controllerColegio = require("../controller/colegio");
 const controllerMaps = require("../controller/maps");
 const controllerHome = require("../controller/home");
+const controllerEmail = require("../controller/email");
 
 /// EXPRESS
 const routes = express.Router();
@@ -80,8 +81,10 @@ routes.delete('/colegio/:id', controllerColegio.deleteColegio);
 ///Maps
 routes.get('/maps', controllerMaps.getMaps);
 
-
-///Maps
+///Home
 routes.get('/home', controllerHome.getCountersHome);
+
+///Email
+routes.post('/email', controllerEmail.sendEmail);
 
 module.exports = routes
