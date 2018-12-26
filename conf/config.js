@@ -6,6 +6,6 @@
     host: 'smtp.gmail.com',
     porthost: 587,
     secure: false,
-    usermail: " enviogeca@gmail.com",
+    usermail: "enviogeca@gmail.com",
     passmail: "geca2018"        
   };
