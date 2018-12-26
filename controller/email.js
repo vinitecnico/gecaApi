@@ -54,7 +54,7 @@ exports.sendEmail = (request, response, next) => {
                                 //console.log(doc);
                             });
 
-                            response.status(status.OK).send("Email's Enviado(s) com sucesso.");
+                            response.status(status.OK).send(JSON.stringify("Email's Enviado(s) com sucesso."));
                         } else {
                             response.status(status.NOT_FOUND).send(JSON.stringify("Problemas ao envio de email"));
                         }
