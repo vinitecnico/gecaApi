@@ -76,7 +76,7 @@ routes.delete('/empresa/:id', controllerEmpresa.deleteEmpresa);
 ///Colegio
 routes.post('/colegio', controllerColegio.postColegio);
 routes.get('/colegio', controllerColegio.getColegio);
-routes.get('/colegio/:id', controllerColegio.getColegio);
+routes.get('/colegio/:id', controllerColegio.getOnlyColegio);
 routes.put('/colegio/:id', controllerColegio.putColegio);
 routes.delete('/colegio/:id', controllerColegio.deleteColegio);
 routes.post('/colegio/importdatabase', controllerColegio.postImportDatabase);
