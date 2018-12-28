@@ -134,7 +134,7 @@ exports.postFeira = (request, response, next) => {
                     }
 
                 }
-                    db.close();
+                db.close();
 
             });
 
@@ -235,6 +235,77 @@ exports.deleteFeira = (request, response, next) => {
             });
 
         }
+    });
+
+}
+
+///POST import database
+exports.postImportDatabase = (request, response, next) => {
+
+    MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
+
+        if (erro) {
+
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+
+        } else {
+            /// DataBase
+            var dbo = db.db("baseinit");
+
+            const tb_feiras = require('../dbFile/tb_feiras.json');
+
+            for (var i = 0; i < tb_feiras.length; i++) {
+                ///Verifa se cpf ja existe na base
+
+                if (tb_feiras[i].chr_dia && tb_feiras[i].chr_cep) {
+
+                    dbo.collection("feiras").find({ "zipcode": tb_feiras[i].chr_cep }).toArray(function (err, res) {
+
+                        if (err) {
+                            console.log(err);
+                        } else {
+
+                            if (res.length == 0) {
+                                ///Object para inserção
+                                var myobj = {
+                                    "name": tb_feiras[i].chr_nome,
+                                    "weekday": tb_feiras[i].chr_dia,
+                                    "zipcode": tb_feiras[i].chr_cep,
+                                    "address": tb_feiras[i].chr_rua,
+                                    "numberAddress": tb_feiras[i].chr_numero,
+                                    "complement": tb_feiras[i].chr_complemento,
+                                    "neighborhood": tb_feiras[i].chr_bairro,
+                                    "city": tb_feiras[i].chr_cidade,
+                                    "state": tb_feiras[i].chr_estado,
+                                    "gps": tb_feiras[i].chr_gps,
+                                    "datacreate": new Date(Date.now()),
+                                    "dataUpdate": new Date(Date.now())
+                                }
+
+                                dbo.collection("feiras").insertOne(myobj, function (err, res) {
+
+                                    if (err) {
+                                        // response.status(status.BAD_REQUEST).send(JSON.stringify(err));
+                                        console.log(err);
+                                    }
+                                    else {
+
+                                        // response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));
+                                        console.log("Feira cadastrada com sucesso");
+                                    }
+
+                                    db.close();
+
+                                });
+                            }
+
+                        }
+                        db.close();
+                    });
+                }
+            }
+        }
+
     });
 
 }

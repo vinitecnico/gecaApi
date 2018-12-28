@@ -64,6 +64,7 @@ routes.get('/feira', controllerFeira.getFeira);
 routes.get('/feira/:id', controllerFeira.getOnlyFeira);
 routes.put('/feira/:id', controllerFeira.putFeira);
 routes.delete('/feira/:id', controllerFeira.deleteFeira);
+routes.post('/feira/importdatabase', controllerFeira.postImportDatabase);
 
 ///Empresa
 routes.post('/empresa', controllerEmpresa.postEmpresa);
