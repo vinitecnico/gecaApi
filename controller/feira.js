@@ -263,56 +263,52 @@ exports.postImportDatabase = async (request, response, next) => {
 
                     if (tb_feiras[i].chr_dia && tb_feiras[i].chr_cep && tb_feiras[i].chr_nome) {
 
-                        promises.push(dbo.collection("feiras").find({ "zipcode": tb_feiras[i].chr_cep })
-                            .toArray((err, res) => {
+
+                        // dbo.collection("feiras").find({ "zipcode": tb_feiras[i].chr_cep })
+                        // .toArray((err, res) => {
+                        //     if (err) {
+                        //         console.log(err);
+                        //     } else {
+
+                        // if (res.length == 0) {
+                        ///Object para inserção
+                        var myobj = {
+                            "name": d.write(tb_feiras[i].chr_nome),
+                            "weekday": tb_feiras[i].chr_dia,
+                            "zipcode": tb_feiras[i].chr_cep.replace('-', ''),
+                            "address": tb_feiras[i].chr_rua ? d.write(tb_feiras[i].chr_rua) : null,
+                            "numberAddress": tb_feiras[i].chr_numero,
+                            "complement": tb_feiras[i].chr_complemento ? d.write(tb_feiras[i].chr_complemento) : null,
+                            "neighborhood": tb_feiras[i].chr_bairro,
+                            "city": tb_feiras[i].chr_cidade ? d.write(tb_feiras[i].chr_cidade) : null,
+                            "state": tb_feiras[i].chr_estado,
+                            "gps": tb_feiras[i].chr_gps,
+                            "datacreate": new Date(Date.now()),
+                            "dataUpdate": new Date(Date.now())
+                        }
+
+                        promises.push(
+                            dbo.collection("feiras").insertOne(myobj, (err, res) => {
+
                                 if (err) {
+                                    // response.status(status.BAD_REQUEST).send(JSON.stringify(err));
                                     console.log(err);
-                                } else {
-
-                                    if (res.length == 0) {
-                                        ///Object para inserção
-                                        var myobj = {
-                                            "name": d.write(tb_feiras[i].chr_nome),
-                                            "weekday": tb_feiras[i].chr_dia,
-                                            "zipcode": tb_feiras[i].chr_cep.replace('-', ''),
-                                            "address": tb_feiras[i].chr_rua ? d.write(tb_feiras[i].chr_rua) : null,
-                                            "numberAddress": tb_feiras[i].chr_numero,
-                                            "complement": tb_feiras[i].chr_complemento ? d.write(tb_feiras[i].chr_complemento) : null,
-                                            "neighborhood": tb_feiras[i].chr_bairro,
-                                            "city": tb_feiras[i].chr_cidade ? d.write(tb_feiras[i].chr_cidade) : null,
-                                            "state": tb_feiras[i].chr_estado,
-                                            "gps": tb_feiras[i].chr_gps,
-                                            "datacreate": new Date(Date.now()),
-                                            "dataUpdate": new Date(Date.now())
-                                        }
-
-                                        return dbo.collection("feiras").insertOne(myobj, (err, res) => {
-
-                                            if (err) {
-                                                // response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                                                console.log(err);
-                                            }
-                                            else {
-
-                                                // response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));
-                                                console.log("Feira cadastrada com sucesso");
-                                            }
-
-                                            db.close();
-                                            const defer = Q.defer();
-                                            return defer.promise;
-
-                                        });
-                                    }
-
                                 }
-                                db.close();
+                                else {
+
+                                    // response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));
+                                    console.log("Feira cadastrada com sucesso");
+                                }
+
+                                
+                                const defer = Q.defer();
+                                return defer.promise;
                             }));
                     }
-
                 }
                 Q.all(promises)
                     .then(() => {
+                        console.log('test');
                         response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));
                     });
             }
