@@ -111,3 +111,38 @@ exports.getFeiraMaps = (request, response, next) => {
     });
 
 }
+
+
+exports.getPessoas_Feiras = (request, response, next) => {
+
+    MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
+
+        if (erro) {
+
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+
+        } else {
+
+            var myObjmain = []
+            var myObjinside = {}
+
+            db.db("baseinit").collection("pessoa").find({ "endereco_contato.gps": { $ne: null } }).toArray(function (err, res) {
+                myObjinside.pessoa = res;
+                db.close();
+            })
+
+            
+            db.db("baseinit").collection("feiras").find({ "gps": { $ne: null } }).toArray(function (err, res) {
+                myObjinside.feira = res;
+                db.close();
+            })
+
+            setTimeout(() => {
+                myObjmain.push(myObjinside);
+                response.status(status.OK).send(myObjmain);
+            }, 2500);
+
+        }
+    });
+
+}
