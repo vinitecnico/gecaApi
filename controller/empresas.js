@@ -1,7 +1,7 @@
 var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
-
+const Q = require('q');
 
 ///GET Empresa
 exports.getEmpresa = (request, response, next) => {
@@ -255,4 +255,66 @@ exports.deleteEmpresa = (request, response, next) => {
         }
     });
 
+}
+
+///POST import database
+exports.postImportDatabase = async (request, response, next) => {
+    try {
+        MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
+
+            if (erro) {
+
+                response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+
+            } else {
+                /// DataBase
+                var dbo = db.db("baseinit");
+                var StringDecoder = require('string_decoder').StringDecoder;
+                var d = new StringDecoder('utf8');
+                var promises = [];
+
+                const tb_empresas = require('../dbFile/tb_empresas.json');
+
+                for (var i = 0; i < tb_empresas.length; i++) {
+
+                        ///Object para inserção
+                        var myobj = {
+                            "name": tb_empresas[i].chr_fantasia ? d.write(tb_empresas[i].chr_fantasia): null,
+                            "cnpj": tb_empresas[i].chr_cnpj.replace('.' , '').replace('\/' , '').replace('-', '').replace('.' , ''),
+                            "segment": tb_empresas[i].chr_segmento ? d.write(tb_empresas[i].chr_segmento) : null,
+                            "activity": tb_empresas[i].chr_atividade ? d.write(tb_empresas[i].chr_atividade) : null,
+                            "zipcode": tb_empresas[i].chr_cep ? d.write(tb_empresas[i].chr_cep.replace('-', '')) : null,
+                            "address": tb_empresas[i].chr_rua ? d.write(tb_empresas[i].chr_rua) : null,
+                            "numberAddress": tb_empresas[i].chr_numero,
+                            "complement": tb_empresas[i].chr_complemento?  d.write(tb_empresas[i].chr_complemento) : null,
+                            "neighborhood":tb_empresas[i].chr_bairro ? d.write(tb_empresas[i].chr_bairro) : null,
+                            "city": tb_empresas[i].chr_cidade ? d.write(tb_empresas[i].chr_cidade) : null,
+                            "state": null,
+                            "gps": null,
+                            "mainContact": tb_empresas[i].chr_cidade ? d.write(tb_empresas[i].chr_contato): null,
+                            "phone": tb_empresas[i].chr_telefone,
+                            "mobile": tb_empresas[i].chr_celular,
+                            "email": tb_empresas[i].chr_email,
+                            "facebook": tb_empresas[i].chr_face,
+                            "twitter": tb_empresas[i].chr_twitter,
+                            "instagram": null,
+                            "datacreate": new Date(Date.now()),
+                            "dataUpdate": new Date(Date.now())
+                        }
+
+                        promises.push(dbo.collection("empresas").insertOne(myobj));
+                  
+                }
+                Q.all(promises)
+                    .then(() => {
+                        //console.log('test');
+                        response.status(status.OK).send(JSON.stringify("Empresas cadastradas com sucesso"));
+                    });
+            }
+
+        });
+    }
+    catch (e) {
+        console.log(e);
+    }
 }

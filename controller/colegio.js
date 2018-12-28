@@ -289,7 +289,7 @@ exports.postImportDatabase = async (request, response, next) => {
                 Q.all(promises)
                     .then(() => {
                         //console.log('test');
-                        response.status(status.OK).send(JSON.stringify("Colégios cadastrada com sucesso"));
+                        response.status(status.OK).send(JSON.stringify("Colégios cadastrados com sucesso"));
                     });
             }
 
