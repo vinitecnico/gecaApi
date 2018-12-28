@@ -1,6 +1,7 @@
 var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
+const Q = require('q');
 
 
 ///GET Colegio
@@ -241,4 +242,60 @@ exports.deleteColegio = (request, response, next) => {
         }
     });
 
+}
+
+///POST import database
+exports.postImportDatabase = async (request, response, next) => {
+    try {
+        MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
+
+            if (erro) {
+
+                response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+
+            } else {
+                /// DataBase
+                var dbo = db.db("baseinit");
+                var StringDecoder = require('string_decoder').StringDecoder;
+                var d = new StringDecoder('utf8');
+                var promises = [];
+
+                const tb_colegios = require('../dbFile/tb_colegios.json');
+
+                for (var i = 0; i < tb_colegios.length; i++) {
+
+                        ///Object para inserção
+                        var myobj = {
+                            "name": d.write(tb_colegios[i].chr_nome),
+                            "numbervoters": tb_colegios[i].int_eleitores ,
+                            "electoralzone": tb_colegios[i].int_zona,
+                            "section": tb_colegios[i].chr_secao,
+                            "specialsection": tb_colegios[i].chr_secaoX,
+                            "zipcode": tb_colegios[i].chr_cep? d.write(tb_colegios[i].chr_cep.replace('-', '')) : null,
+                            "address": tb_colegios[i].chr_rua? d.write(tb_colegios[i].chr_rua) : null,
+                            "numberAddress": tb_colegios[i].chr_numero,
+                            "complement": tb_colegios[i].chr_complemento? d.write(tb_colegios[i].chr_complemento) : null,
+                            "neighborhood": tb_colegios[i].chr_bairro,
+                            "city" : tb_colegios[i].chr_cidade? d.write(tb_colegios[i].chr_cidade) : null,
+                            "state" : tb_colegios[i].chr_estado,
+                            "gps": tb_colegios[i].chr_gps,
+                            "datacreate": new Date(Date.now()),
+                            "dataUpdate": new Date(Date.now())
+                        }
+
+                        promises.push(dbo.collection("colegios").insertOne(myobj));
+                    
+                }
+                Q.all(promises)
+                    .then(() => {
+                        //console.log('test');
+                        response.status(status.OK).send(JSON.stringify("Colégios cadastrada com sucesso"));
+                    });
+            }
+
+        });
+    }
+    catch (e) {
+        console.log(e);
+    }
 }

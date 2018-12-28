@@ -79,6 +79,7 @@ routes.get('/colegio', controllerColegio.getColegio);
 routes.get('/colegio/:id', controllerColegio.getColegio);
 routes.put('/colegio/:id', controllerColegio.putColegio);
 routes.delete('/colegio/:id', controllerColegio.deleteColegio);
+routes.post('/colegio/importdatabase', controllerColegio.postImportDatabase);
 
 ///Maps
 routes.get('/maps', controllerMaps.getMaps);
