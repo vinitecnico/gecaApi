@@ -254,16 +254,16 @@ exports.postImportDatabase = async (request, response, next) => {
             var dbo = db.db("baseinit");
             var StringDecoder = require('string_decoder').StringDecoder;
             var d = new StringDecoder('utf8');
-            const defer = Q.defer();
+            var promises = [];
 
             const tb_feiras = require('../dbFile/tb_feiras.json');
 
             for (var i = 0; i < tb_feiras.length; i++) {
                 ///Verifa se cpf ja existe na base
 
-                if (tb_feiras[i].chr_dia && tb_feiras[i].chr_cep) {
+                if (tb_feiras[i].chr_dia && tb_feiras[i].chr_cep && tb_feiras[i].chr_nome) {
 
-                    Q.all(dbo.collection("feiras").find({ "zipcode": tb_feiras[i].chr_cep })
+                    promises.push(dbo.collection("feiras").find({ "zipcode": tb_feiras[i].chr_cep })
                         .toArray(function (err, res) {
                             if (err) {
                                 console.log(err);
@@ -275,11 +275,11 @@ exports.postImportDatabase = async (request, response, next) => {
                                         "name": d.write(tb_feiras[i].chr_nome),
                                         "weekday": tb_feiras[i].chr_dia,
                                         "zipcode": tb_feiras[i].chr_cep.replace('-', ''),
-                                        "address": d.write(tb_feiras[i].chr_rua),
+                                        "address": tb_feiras[i].chr_rua ? d.write(tb_feiras[i].chr_rua) : null,
                                         "numberAddress": tb_feiras[i].chr_numero,
-                                        "complement": d.write(tb_feiras[i].chr_complemento),
+                                        "complement": tb_feiras[i].chr_complemento ? d.write(tb_feiras[i].chr_complemento) : null,
                                         "neighborhood": tb_feiras[i].chr_bairro,
-                                        "city": d.write(tb_feiras[i].chr_cidade),
+                                        "city": tb_feiras[i].chr_cidade ? d.write(tb_feiras[i].chr_cidade) : null,
                                         "state": tb_feiras[i].chr_estado,
                                         "gps": tb_feiras[i].chr_gps,
                                         "datacreate": new Date(Date.now()),
@@ -299,18 +299,22 @@ exports.postImportDatabase = async (request, response, next) => {
                                         }
 
                                         db.close();
+                                        const defer = Q.defer();
+                                        return defer.promise;
 
                                     });
                                 }
 
                             }
                             db.close();
-                        })).then(() => {
-                            response.status(status.OK).send(JSON.stringify("Feiras cadastradas com sucesso"));
-                        });
+                        }));
                 }
 
             }
+            Q.all(promises)
+                .then(() => {
+                    response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));
+                });
         }
 
     });
