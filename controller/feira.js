@@ -251,6 +251,8 @@ exports.postImportDatabase = (request, response, next) => {
         } else {
             /// DataBase
             var dbo = db.db("baseinit");
+            var StringDecoder = require('string_decoder').StringDecoder;
+            var d = new StringDecoder('utf8');
 
             const tb_feiras = require('../dbFile/tb_feiras.json');
 
@@ -268,14 +270,14 @@ exports.postImportDatabase = (request, response, next) => {
                             if (res.length == 0) {
                                 ///Object para inserção
                                 var myobj = {
-                                    "name": tb_feiras[i].chr_nome,
+                                    "name": d.write(tb_feiras[i].chr_nome),
                                     "weekday": tb_feiras[i].chr_dia,
-                                    "zipcode": tb_feiras[i].chr_cep,
-                                    "address": tb_feiras[i].chr_rua,
+                                    "zipcode": tb_feiras[i].chr_cep.replace('-', ''),
+                                    "address": d.write(tb_feiras[i].chr_rua),
                                     "numberAddress": tb_feiras[i].chr_numero,
-                                    "complement": tb_feiras[i].chr_complemento,
+                                    "complement": d.write(tb_feiras[i].chr_complemento),
                                     "neighborhood": tb_feiras[i].chr_bairro,
-                                    "city": tb_feiras[i].chr_cidade,
+                                    "city": d.write(tb_feiras[i].chr_cidade),
                                     "state": tb_feiras[i].chr_estado,
                                     "gps": tb_feiras[i].chr_gps,
                                     "datacreate": new Date(Date.now()),
