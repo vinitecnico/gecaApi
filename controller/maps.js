@@ -85,7 +85,6 @@ exports.getFeiraMaps = (request, response, next) => {
                 "neighborhood": 0,
                 "city": 0,
                 "state": 0,
-                "gps": 0,
                 "datacreate": 0,
                 "dataUpdate": 0
             }
