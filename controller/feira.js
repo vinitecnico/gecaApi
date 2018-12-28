@@ -292,7 +292,6 @@ exports.postImportDatabase = async (request, response, next) => {
                 }
                 Q.all(promises)
                     .then(() => {
-                        console.log('test');
                         response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));
                     });
             }
