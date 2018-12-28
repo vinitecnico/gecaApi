@@ -95,7 +95,7 @@ exports.postFeira = (request, response, next) => {
 
                     if (res.length != 0) {
 
-                        response.status(status.UNAUTHORIZED).send(JSON.stringify("Cadastro da Feira foi encontrado em nossa base."));
+                        response.status(status.UNAUTHORIZED).send(JSON.stringify("Já existe feira cadastrada nesse endereço!"));
 
                     } else {
 
