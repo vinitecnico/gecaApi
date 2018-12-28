@@ -1,6 +1,7 @@
 var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
-var ObjectId = require('mongodb').ObjectId;
+const ObjectId = require('mongodb').ObjectId;
+const Q = require('q');
 
 
 ///GET Feira
@@ -240,7 +241,7 @@ exports.deleteFeira = (request, response, next) => {
 }
 
 ///POST import database
-exports.postImportDatabase = (request, response, next) => {
+exports.postImportDatabase = async (request, response, next) => {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
@@ -253,6 +254,7 @@ exports.postImportDatabase = (request, response, next) => {
             var dbo = db.db("baseinit");
             var StringDecoder = require('string_decoder').StringDecoder;
             var d = new StringDecoder('utf8');
+            const defer = Q.defer();
 
             const tb_feiras = require('../dbFile/tb_feiras.json');
 
@@ -261,50 +263,53 @@ exports.postImportDatabase = (request, response, next) => {
 
                 if (tb_feiras[i].chr_dia && tb_feiras[i].chr_cep) {
 
-                    dbo.collection("feiras").find({ "zipcode": tb_feiras[i].chr_cep }).toArray(function (err, res) {
+                    Q.all(dbo.collection("feiras").find({ "zipcode": tb_feiras[i].chr_cep })
+                        .toArray(function (err, res) {
+                            if (err) {
+                                console.log(err);
+                            } else {
 
-                        if (err) {
-                            console.log(err);
-                        } else {
+                                if (res.length == 0) {
+                                    ///Object para inserção
+                                    var myobj = {
+                                        "name": d.write(tb_feiras[i].chr_nome),
+                                        "weekday": tb_feiras[i].chr_dia,
+                                        "zipcode": tb_feiras[i].chr_cep.replace('-', ''),
+                                        "address": d.write(tb_feiras[i].chr_rua),
+                                        "numberAddress": tb_feiras[i].chr_numero,
+                                        "complement": d.write(tb_feiras[i].chr_complemento),
+                                        "neighborhood": tb_feiras[i].chr_bairro,
+                                        "city": d.write(tb_feiras[i].chr_cidade),
+                                        "state": tb_feiras[i].chr_estado,
+                                        "gps": tb_feiras[i].chr_gps,
+                                        "datacreate": new Date(Date.now()),
+                                        "dataUpdate": new Date(Date.now())
+                                    }
 
-                            if (res.length == 0) {
-                                ///Object para inserção
-                                var myobj = {
-                                    "name": d.write(tb_feiras[i].chr_nome),
-                                    "weekday": tb_feiras[i].chr_dia,
-                                    "zipcode": tb_feiras[i].chr_cep.replace('-', ''),
-                                    "address": d.write(tb_feiras[i].chr_rua),
-                                    "numberAddress": tb_feiras[i].chr_numero,
-                                    "complement": d.write(tb_feiras[i].chr_complemento),
-                                    "neighborhood": tb_feiras[i].chr_bairro,
-                                    "city": d.write(tb_feiras[i].chr_cidade),
-                                    "state": tb_feiras[i].chr_estado,
-                                    "gps": tb_feiras[i].chr_gps,
-                                    "datacreate": new Date(Date.now()),
-                                    "dataUpdate": new Date(Date.now())
+                                    return dbo.collection("feiras").insertOne(myobj, function (err, res) {
+
+                                        if (err) {
+                                            // response.status(status.BAD_REQUEST).send(JSON.stringify(err));
+                                            console.log(err);
+                                        }
+                                        else {
+
+                                            // response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));
+                                            console.log("Feira cadastrada com sucesso");
+                                        }
+
+                                        db.close();
+
+                                    });
                                 }
 
-                                dbo.collection("feiras").insertOne(myobj, function (err, res) {
-
-                                    if (err) {
-                                        // response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                                        console.log(err);
-                                    }
-                                    else {
-
-                                        // response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));
-                                        console.log("Feira cadastrada com sucesso");
-                                    }
-
-                                    db.close();
-
-                                });
                             }
-
-                        }
-                        db.close();
-                    });
+                            db.close();
+                        })).then(() => {
+                            response.status(status.OK).send(JSON.stringify("Feiras cadastradas com sucesso"));
+                        });
                 }
+
             }
         }
 
