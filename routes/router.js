@@ -14,6 +14,7 @@ const controllerColegio = require("../controller/colegio");
 const controllerMaps = require("../controller/maps");
 const controllerHome = require("../controller/home");
 const controllerEmail = require("../controller/email");
+const controllerCnpjWs = require("../controller/cnpj");
 
 /// EXPRESS
 const routes = express.Router();
@@ -86,5 +87,8 @@ routes.get('/home', controllerHome.getCountersHome);
 
 ///Email
 routes.post('/email', controllerEmail.sendEmail);
+
+///CNPJ
+routes.get('/cnpjws/:cnpj', controllerCnpjWs.getCNPJWs);
 
 module.exports = routes
