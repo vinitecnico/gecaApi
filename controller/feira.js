@@ -287,23 +287,7 @@ exports.postImportDatabase = async (request, response, next) => {
                             "dataUpdate": new Date(Date.now())
                         }
 
-                        promises.push(
-                            dbo.collection("feiras").insertOne(myobj, (err, res) => {
-
-                                if (err) {
-                                    // response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                                    console.log(err);
-                                }
-                                else {
-
-                                    // response.status(status.OK).send(JSON.stringify("Feira cadastrada com sucesso"));
-                                    console.log("Feira cadastrada com sucesso");
-                                }
-
-                                
-                                const defer = Q.defer();
-                                return defer.promise;
-                            }));
+                        promises.push(dbo.collection("feiras").insertOne(myobj));
                     }
                 }
                 Q.all(promises)
