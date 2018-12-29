@@ -151,30 +151,42 @@ exports.getPessoas_Feiras = (request, response, next) => {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
+            var myObjmain = [];
+            var myObjinside = {};
+            var promises = [];
 
-            var myObjmain = []
-            var myObjinside = {}
-
-            db.db("baseinit").collection("pessoa").find({ "endereco_contato.gps": { $ne: null } })
-                .project(querypessoa)
-                .toArray(function (err, res) {
-                    myObjinside.pessoa = res;
-                    db.close();
+            promises.push(getMap(db, 'pessoa', querypessoa, { "endereco_contato.gps": { $ne: null } })
+                .then((data) => {
+                    myObjinside.pessoa = data;
+                    return Q.resolve(data);
                 })
+                .catch((e) => {
+                    return Q.reject(e);
+                }));
 
-
-            db.db("baseinit").collection("feiras").find({ "gps": { $ne: null } })
-                .project(queryFeira)
-                .toArray(function (err, res) {
-                    myObjinside.feira = res;
-                    db.close();
+            promises.push(getMap(db, 'feiras', queryFeira, { 'gps': { $ne: null } })
+                .then((data) => {
+                    myObjinside.feira = data;
+                    return Q.resolve(data);
                 })
+                .catch((e) => {
+                    return Q.reject(e);
+                }));
 
-            setTimeout(() => {
-                myObjmain.push(myObjinside);
-                response.status(status.OK).send(myObjmain);
-            }, 2500);
+            promises.push(getMap(db, 'empresas', queryEmpresa, { 'gps': { $ne: null } })
+                .then((data) => {
+                    myObjinside.empresa = data;
+                    return Q.resolve(data);
+                })
+                .catch((e) => {
+                    return Q.reject(e);
+                }));
 
+            Q.all(promises)
+                .then(() => {
+                    myObjmain.push(myObjinside);
+                    response.status(status.OK).send(myObjmain);
+                });
         }
     });
 
