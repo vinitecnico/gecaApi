@@ -1,6 +1,7 @@
 var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
+const Q = require('q');
 
 const querypessoa = {
     "dados_pessoais.cpf": 0,
@@ -43,75 +44,103 @@ const queryFeira = {
     "dataUpdate": 0
 }
 
+const queryEmpresa = {
+    "cnpj": 0,
+    "segment": 0,
+    "activity": 0,
+    "zipcode": 0,
+    "address": 0,
+    "numberAddress": 0,
+    "complement": 0,
+    "neighborhood": 0,
+    "city": 0,
+    "state": 0,
+    "mainContact": 0,
+    "phone": 0,
+    "mobile": 0,
+    "email": 0,
+    "facebook": 0,
+    "twitter": 0,
+    "instagram": 0,
+    "datacreate": 0,
+    "dataUpdate": 0
+}
 
+function getMap(db, collectionName, ignorObject, findObject) {
+    const defer = Q.defer();
+    db.db("baseinit").collection(collectionName)
+        .find(findObject)
+        .project(ignorObject)
+        .toArray(function (err, res) {
+            db.close();
+            if (err) {
+                defer.reject(JSON.stringify(err));
+            }
+            else {
+                if (res.length != 0) {
+                    defer.resolve(res);
+                } else {
+                    defer.reject('Nenhum registro foi encontrado!');
+                }
+            }
+        });
+    return defer.promise;
+}
 
-///GET Colegio
+///GET Pessoa
 exports.getMaps = (request, response, next) => {
-
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
-
         if (erro) {
-
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
-
         } else {
-            db.db("baseinit").collection("pessoa").find({})
-                .project(querypessoa)
-                .toArray(function (err, res) {
-                    if (err) {
-                        response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                    }
-                    else {
-
-                        if (res.length != 0) {
-                            response.status(status.OK).send(res);
-                        } else {
-                            response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Colegio foi Cadastrada."));
-                        }
-
-                    }
-
-                    db.close();
-                });
-
+            getMap(db, 'pessoa', querypessoa, { 'endereco_contato.gps': { $ne: null } })
+                .then((data) => {
+                    response.status(status.OK).send(data);
+                })
+                .catch((e) => {
+                    response.status(status.NOT_FOUND).send(JSON.stringify(e));
+                })
+                .finally(db.close);
         }
     });
 
 }
 
-///GET Colegio
+///GET Feiras
 exports.getFeiraMaps = (request, response, next) => {
-
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
-
         if (erro) {
-
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
-
         } else {
-            db.db("baseinit").collection("feiras").find({"gps": {$ne:null}})
-                .project(queryFeira)
-                .toArray(function (err, res) {
-                    if (err) {
-                        response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                    }
-                    else {
-
-                        if (res.length != 0) {
-                            response.status(status.OK).send(res);
-                        } else {
-                            response.status(status.NOT_FOUND).send(JSON.stringify("Nenhuma feira foi Cadastrada."));
-                        }
-                    }
-
-                    db.close();
-                });
-
+            getMap(db, 'feiras', queryFeira, { 'gps': { $ne: null } })
+                .then((data) => {
+                    response.status(status.OK).send(data);
+                })
+                .catch((e) => {
+                    response.status(status.NOT_FOUND).send(JSON.stringify(e));
+                })
+                .finally(db.close);
         }
     });
-
 }
 
+///GET Empresas
+exports.getEmpresaMaps = (request, response, next) => {
+    MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
+        if (erro) {
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+        } else {
+            getMap(db, 'empresas', queryEmpresa, { 'gps': { $ne: null } })
+                .then((data) => {
+                    response.status(status.OK).send(data);
+                })
+                .catch((e) => {
+                    response.status(status.NOT_FOUND).send(JSON.stringify(e));
+                })
+                .finally(db.close);
+        }
+    });
+}
 
 exports.getPessoas_Feiras = (request, response, next) => {
 
@@ -127,19 +156,19 @@ exports.getPessoas_Feiras = (request, response, next) => {
             var myObjinside = {}
 
             db.db("baseinit").collection("pessoa").find({ "endereco_contato.gps": { $ne: null } })
-            .project(querypessoa)
-            .toArray(function (err, res) {
-                myObjinside.pessoa = res;
-                db.close();
-            })
+                .project(querypessoa)
+                .toArray(function (err, res) {
+                    myObjinside.pessoa = res;
+                    db.close();
+                })
 
-            
+
             db.db("baseinit").collection("feiras").find({ "gps": { $ne: null } })
-            .project(queryFeira)
-            .toArray(function (err, res) {
-                myObjinside.feira = res;
-                db.close();
-            })
+                .project(queryFeira)
+                .toArray(function (err, res) {
+                    myObjinside.feira = res;
+                    db.close();
+                })
 
             setTimeout(() => {
                 myObjmain.push(myObjinside);
