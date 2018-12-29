@@ -142,7 +142,7 @@ exports.getEmpresaMaps = (request, response, next) => {
     });
 }
 
-exports.getPessoas_Feiras = (request, response, next) => {
+exports.getAll = (request, response, next) => {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
