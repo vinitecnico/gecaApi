@@ -2,6 +2,47 @@ var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
 
+const querypessoa = {
+    "dados_pessoais.cpf": 0,
+    "dados_pessoais.rg": 0,
+    "dados_pessoais.birthDate": 0,
+    "dados_pessoais.etnia": 0,
+    "dados_pessoais.motherName": 0,
+    "dados_pessoais.sexo": 0,
+    "dados_pessoais.transgenero": 0,
+    "dados_pessoais.orientacosexusal": 0,
+    "dados_pessoais.socialName": 0,
+    "endereco_contato.zipcode": 0,
+    "endereco_contato.address": 0,
+    "endereco_contato.numberAddress": 0,
+    "endereco_contato.complement": 0,
+    "endereco_contato.neighborhood": 0,
+    "endereco_contato.city": 0,
+    "endereco_contato.state": 0,
+    "endereco_contato.phone": 0,
+    "endereco_contato.mobile": 0,
+    "endereco_contato.email": 0,
+    "endereco_contato.facebook": 0,
+    "endereco_contato.twitter": 0,
+    "endereco_contato.instagram": 0,
+    "profissional_eleitoral": 0,
+    "notificacoes_anotacoes": 0,
+    "datacreate": 0,
+    "dataUpdate": 0
+}
+
+const queryFeira = {
+    "zipcode": 0,
+    "address": 0,
+    "numberAddress": 0,
+    "complement": 0,
+    "neighborhood": 0,
+    "city": 0,
+    "state": 0,
+    "datacreate": 0,
+    "dataUpdate": 0
+}
+
 
 
 ///GET Colegio
@@ -14,37 +55,8 @@ exports.getMaps = (request, response, next) => {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
-            var queryproject = {
-                "dados_pessoais.cpf": 0,
-                "dados_pessoais.rg": 0,
-                "dados_pessoais.birthDate": 0,
-                "dados_pessoais.etnia": 0,
-                "dados_pessoais.motherName": 0,
-                "dados_pessoais.sexo": 0,
-                "dados_pessoais.transgenero": 0,
-                "dados_pessoais.orientacosexusal": 0,
-                "dados_pessoais.socialName": 0,
-                "endereco_contato.zipcode": 0,
-                "endereco_contato.address": 0,
-                "endereco_contato.numberAddress": 0,
-                "endereco_contato.complement": 0,
-                "endereco_contato.neighborhood": 0,
-                "endereco_contato.city": 0,
-                "endereco_contato.state": 0,
-                "endereco_contato.phone": 0,
-                "endereco_contato.mobile": 0,
-                "endereco_contato.email": 0,
-                "endereco_contato.facebook": 0,
-                "endereco_contato.twitter": 0,
-                "endereco_contato.instagram": 0,
-                "profissional_eleitoral": 0,
-                "notificacoes_anotacoes": 0,
-                "datacreate": 0,
-                "dataUpdate": 0
-            }
-
             db.db("baseinit").collection("pessoa").find({})
-                .project(queryproject)
+                .project(querypessoa)
                 .toArray(function (err, res) {
                     if (err) {
                         response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -77,20 +89,8 @@ exports.getFeiraMaps = (request, response, next) => {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
-            var queryproject = {
-                "zipcode": 0,
-                "address": 0,
-                "numberAddress": 0,
-                "complement": 0,
-                "neighborhood": 0,
-                "city": 0,
-                "state": 0,
-                "datacreate": 0,
-                "dataUpdate": 0
-            }
-
             db.db("baseinit").collection("feiras").find({"gps": {$ne:null}})
-                .project(queryproject)
+                .project(queryFeira)
                 .toArray(function (err, res) {
                     if (err) {
                         response.status(status.BAD_REQUEST).send(JSON.stringify(err));
@@ -126,13 +126,17 @@ exports.getPessoas_Feiras = (request, response, next) => {
             var myObjmain = []
             var myObjinside = {}
 
-            db.db("baseinit").collection("pessoa").find({ "endereco_contato.gps": { $ne: null } }).toArray(function (err, res) {
+            db.db("baseinit").collection("pessoa").find({ "endereco_contato.gps": { $ne: null } })
+            .project(querypessoa)
+            .toArray(function (err, res) {
                 myObjinside.pessoa = res;
                 db.close();
             })
 
             
-            db.db("baseinit").collection("feiras").find({ "gps": { $ne: null } }).toArray(function (err, res) {
+            db.db("baseinit").collection("feiras").find({ "gps": { $ne: null } })
+            .project(queryFeira)
+            .toArray(function (err, res) {
                 myObjinside.feira = res;
                 db.close();
             })
