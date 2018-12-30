@@ -13,7 +13,7 @@ exports.getFeira = (request, response, next) => {
         pagination = { page: parseInt(request.query.page), perPage: parseInt(request.query.per_page) };
     }
     let filter = {};
-    if(request.query.value){
+    if(request.query.value && request.query.value != "undefined"){
         filter = {$or:[
             {"name":  {"$regex": request.query.value, "$options": "i" }},
             {"weekday":  {"$regex": request.query.value, "$options": "i" }},
