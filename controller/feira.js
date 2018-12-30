@@ -12,6 +12,14 @@ exports.getFeira = (request, response, next) => {
     if (request.query.page && request.query.per_page) {
         pagination = { page: parseInt(request.query.page), perPage: parseInt(request.query.per_page) };
     }
+    let filter = {};
+    if(request.query.value){
+        filter = {$or:[
+            {"name":  {"$regex": request.query.value, "$options": "i" }},
+            {"weekday":  {"$regex": request.query.value, "$options": "i" }},
+            {"city":  {"$regex": request.query.value, "$options": "i" }}
+        ]};
+    }
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
         if (erro) {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
@@ -22,7 +30,7 @@ exports.getFeira = (request, response, next) => {
 
             promises.push(db.db('baseinit')
                 .collection('feiras')
-                .find({})
+                .find(filter)
                 .skip((pagination.perPage * pagination.page) - pagination.perPage)
                 .limit(pagination.perPage)
                 .collation({ locale: "en", })
