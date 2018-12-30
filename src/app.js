@@ -1,15 +1,17 @@
 ///Constante 
-const express =require('express');
+const express = require('express');
 const routespath = require("../routes/router");
 const status = require('http-status')
 const conf = require("../conf/config");
-//const hostname = conf.hostname;
+const bodyParser = require('body-parser');
 const port = process.env.PORT || conf.port;
 
 
 /// Criando Configurações para Utilização dos VERBS [POST, GET, PUT, DELETE]
 /// e criação de middleware atraves do express
 const app = express();
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
@@ -18,7 +20,7 @@ app.use(function (req, res, next) {
 });
 
 app.use(express.json())
-app.use("/api" , routespath);
+app.use("/api", routespath);
 
 
 
@@ -26,7 +28,7 @@ app.use("/api" , routespath);
 app.use((request, response, next) => {
     response.status(status.NOT_FOUND).send()
 })
- 
+
 ///MIDDLEWARE 500: ;
 app.use((error, request, response, next) => {
     response.status(status.INTERNAL_SERVER_ERROR).json({ error })
@@ -36,6 +38,6 @@ app.use((error, request, response, next) => {
 const server = require('http').createServer(app)
 
 /// Input 
-server.listen(port , () => {   
-	console.log(`Servidor em execução na Port:${port}`)
+server.listen(port, () => {
+    console.log(`Servidor em execução na Port:${port}`)
 });

@@ -6,7 +6,10 @@ const Q = require('q');
 
 ///GET Feira
 exports.getFeira = (request, response, next) => {
-
+    let pagination = {};
+    if (request.query.page && request.query.per_page) {
+        pagination = { skip: parseInt(request.query.page), limit: parseInt(request.query.per_page) };
+    }
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
         if (erro) {
@@ -15,22 +18,25 @@ exports.getFeira = (request, response, next) => {
 
         } else {
 
-            db.db("baseinit").collection("feiras").find({}).toArray(function (err, res) {
-                if (err) {
-                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                }
-                else {
+            db.db('baseinit')
+                .collection('feiras')
+                .find({}, pagination)
+                .toArray(function (err, res) {
+                    if (err) {
+                        response.status(status.BAD_REQUEST).send(JSON.stringify(err));
+                    }
+                    else {
 
-                    if (res.length != 0) {
-                        response.status(status.OK).send(res);
-                    } else {
-                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Feria foi Cadastrada."));
+                        if (res.length != 0) {
+                            response.status(status.OK).send(res);
+                        } else {
+                            response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Feria foi Cadastrada."));
+                        }
+
                     }
 
-                }
-
-                db.close();
-            });
+                    db.close();
+                });
 
         }
     });
