@@ -26,7 +26,7 @@ exports.getFeira = (request, response, next) => {
         } else {
             const promises = [];
 
-            promises.push(db.db("baseinit").collection('feiras').estimatedDocumentCount());
+            promises.push(db.db("baseinit").collection('feiras').find(filter).estimatedDocumentCount());
 
             promises.push(db.db('baseinit')
                 .collection('feiras')
