@@ -13,7 +13,7 @@ exports.getFeira = (request, response, next) => {
         pagination = { page: parseInt(request.query.page), perPage: parseInt(request.query.per_page) };
     }
     let filter = {};
-    if(request.query.value && request.query.value != "undefined"){
+    if(request.query.value){
         filter = {$or:[
             {"name":  {"$regex": request.query.value, "$options": "i" }},
             {"weekday":  {"$regex": request.query.value, "$options": "i" }},
@@ -26,7 +26,7 @@ exports.getFeira = (request, response, next) => {
         } else {
             const promises = [];
 
-            promises.push(db.db("baseinit").collection('feiras').find(filter).estimatedDocumentCount());
+            promises.push(db.db("baseinit").collection('feiras').find(filter).count());
 
             promises.push(db.db('baseinit')
                 .collection('feiras')
