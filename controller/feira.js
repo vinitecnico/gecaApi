@@ -7,7 +7,7 @@ const Q = require('q');
 ///GET Feira
 exports.getFeira = (request, response, next) => {
     let pagination = {};
-    const sort = {active: request.query.active || 'name', direction: request.query.direction || 'asc'};
+    const sort = {active: request.query.active || 'name', direction: parseInt(request.query.direction) || 1};
     if (request.query.page && request.query.per_page) {
         pagination = { skip: parseInt(request.query.page), limit: parseInt(request.query.per_page) };
     }
@@ -22,6 +22,7 @@ exports.getFeira = (request, response, next) => {
             db.db('baseinit')
                 .collection('feiras')
                 .find({}, pagination)
+                .collation({locale: "en", })
                 .sort(sort.active, sort.direction)
                 .toArray(function (err, res) {
                     if (err) {
