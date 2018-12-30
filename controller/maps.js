@@ -155,7 +155,7 @@ exports.getAll = (request, response, next) => {
             var myObjinside = {};
             var promises = [];
 
-            const Items = [{
+            const items = [{
                 collectionName: 'pessoa',
                 query: querypessoa,
                 filter: { "endereco_contato.gps": { $ne: null } },
@@ -172,10 +172,10 @@ exports.getAll = (request, response, next) => {
                 fieldName: 'empresa'
             }];
 
-            for (let i = 0; i < Items.length; i++) {
-                promises.push(getMap(db, Items[i].collectionName, Items[i].query, Items[i].filter)
+            for (let i = 0; i < items.length; i++) {
+                promises.push(getMap(db, items[i].collectionName, items[i].query, items[i].filter)
                     .then((data) => {
-                        myObjinside[Items[i].fieldName] = data;
+                        myObjinside[items[i].fieldName] = data;
                         return Q.resolve(data);
                     })
                     .catch((e) => {
@@ -185,6 +185,7 @@ exports.getAll = (request, response, next) => {
 
             Q.all(promises)
                 .then(() => {
+                    db.close();
                     myObjmain.push(myObjinside);
                     response.status(status.OK).send(myObjmain);
                 });
