@@ -88,7 +88,7 @@ function getMap(db, collectionName, ignorObject, findObject) {
 }
 
 ///GET Pessoa
-exports.getMaps = (request, response, next) => {
+exports.getPessoaMaps = (request, response, next) => {
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
         if (erro) {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
@@ -155,32 +155,33 @@ exports.getAll = (request, response, next) => {
             var myObjinside = {};
             var promises = [];
 
-            promises.push(getMap(db, 'pessoa', querypessoa, { "endereco_contato.gps": { $ne: null } })
-                .then((data) => {
-                    myObjinside.pessoa = data;
-                    return Q.resolve(data);
-                })
-                .catch((e) => {
-                    return Q.reject(e);
-                }));
+            const Items = [{
+                collectionName: 'pessoa',
+                query: querypessoa,
+                filter: { "endereco_contato.gps": { $ne: null } },
+                fieldName: 'pessoa'
+            }, {
+                collectionName: 'feiras',
+                query: queryFeira,
+                filter: { 'gps': { $ne: null } },
+                fieldName: 'feira'
+            }, {
+                collectionName: 'empresas',
+                query: queryEmpresa,
+                filter: { 'gps': { $ne: null } },
+                fieldName: 'empresa'
+            }];
 
-            promises.push(getMap(db, 'feiras', queryFeira, { 'gps': { $ne: null } })
-                .then((data) => {
-                    myObjinside.feira = data;
-                    return Q.resolve(data);
-                })
-                .catch((e) => {
-                    return Q.reject(e);
-                }));
-
-            promises.push(getMap(db, 'empresas', queryEmpresa, { 'gps': { $ne: null } })
-                .then((data) => {
-                    myObjinside.empresa = data;
-                    return Q.resolve(data);
-                })
-                .catch((e) => {
-                    return Q.reject(e);
-                }));
+            for (let i = 0; i < Items.length; i++) {
+                promises.push(getMap(db, Items[i].collectionName, Items[i].query, Items[i].filter)
+                    .then((data) => {
+                        myObjinside[Items[i].fieldName] = data;
+                        return Q.resolve(data);
+                    })
+                    .catch((e) => {
+                        return Q.reject(e);
+                    }));
+            }
 
             Q.all(promises)
                 .then(() => {
