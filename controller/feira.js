@@ -10,7 +10,7 @@ exports.getFeira = (request, response, next) => {
     let pagination = {};
     const sort = { active: request.query.active || 'name', direction: parseInt(request.query.direction) || 1 };
     if (request.query.page && request.query.per_page) {
-        pagination = { skip: parseInt(request.query.page), limit: parseInt(request.query.per_page) };
+        pagination = { page: parseInt(request.query.page), perPage: parseInt(request.query.per_page) };
     }
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
         if (erro) {
@@ -23,8 +23,8 @@ exports.getFeira = (request, response, next) => {
             promises.push(db.db('baseinit')
                 .collection('feiras')
                 .find({})
-                .skip(pagination.skip)
-                .limit(pagination.limit)
+                .skip((pagination.perPage * pagination.page) - pagination.perPage)
+                .limit(pagination.perPage)
                 .collation({ locale: "en", })
                 .sort(sort.active, sort.direction)
                 .toArray());
