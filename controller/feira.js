@@ -2,45 +2,49 @@ var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 const ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
+const _ = require("lodash");
 
 
 ///GET Feira
 exports.getFeira = (request, response, next) => {
     let pagination = {};
-    const sort = {active: request.query.active || 'name', direction: parseInt(request.query.direction) || 1};
+    const sort = { active: request.query.active || 'name', direction: parseInt(request.query.direction) || 1 };
     if (request.query.page && request.query.per_page) {
         pagination = { skip: parseInt(request.query.page), limit: parseInt(request.query.per_page) };
     }
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
-
         if (erro) {
-
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
-
         } else {
+            const promises = [];
 
-            db.db('baseinit')
+            promises.push(db.db("baseinit").collection('feiras').estimatedDocumentCount());
+
+            promises.push(db.db('baseinit')
                 .collection('feiras')
-                .find({}, pagination)
-                .collation({locale: "en", })
+                .find({})
+                .skip(pagination.skip)
+                .limit(pagination.limit)
+                .collation({ locale: "en", })
                 .sort(sort.active, sort.direction)
-                .toArray(function (err, res) {
-                    if (err) {
-                        response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                    }
-                    else {
+                .toArray());
 
-                        if (res.length != 0) {
-                            response.status(status.OK).send(res);
+            Q.all(promises)
+                .then((data) => {
+                    let result = {};
+                    _.each(data, (x) => {
+                        if (_.isArray(x)) {
+                            result.data = x;
                         } else {
-                            response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Feria foi Cadastrada."));
+                            result.total = x;
                         }
-
-                    }
-
-                    db.close();
-                });
-
+                    });
+                    response.status(status.OK).send(result);
+                })
+                .catch((error) => {
+                    response.status(status.NOT_FOUND).send(JSON.stringify("Feira nao encontrada."));
+                })
+                .finally(db.close);
         }
     });
 
