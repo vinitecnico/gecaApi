@@ -83,10 +83,10 @@ routes.delete('/colegio/:id', controllerColegio.deleteColegio);
 routes.post('/colegio/importdatabase', controllerColegio.postImportDatabase);
 
 ///Maps
-routes.get('/maps', controllerMaps.getMaps);
-routes.get('/mapfeiras', controllerMaps.getFeiraMaps);
-routes.get('/mapempresas', controllerMaps.getEmpresaMaps);
-routes.get('/mapall', controllerMaps.getAll);
+routes.get('/map/pessoa', controllerMaps.getMaps);
+routes.get('/map/feira', controllerMaps.getFeiraMaps);
+routes.get('/map/empresa', controllerMaps.getEmpresaMaps);
+routes.get('/map', controllerMaps.getAll);
 
 ///Home
 routes.get('/home', controllerHome.getCountersHome);
