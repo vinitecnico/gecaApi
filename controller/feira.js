@@ -115,7 +115,7 @@ exports.postFeira = (request, response, next) => {
 
                         ///Object para inserção
                         var myobj = {
-                            "name": request.body.name,
+                            "name": request.body.name.toLowerCase(),
                             "weekday": request.body.weekday,
                             "zipcode": request.body.zipcode,
                             "address": request.body.address,
@@ -172,7 +172,7 @@ exports.putFeira = (request, response, next) => {
             /// DataBase            
             var newvalues = {
                 $set: {
-                    "name": request.body.name,
+                    "name": request.body.name.toLowerCase(),
                     "weekday": request.body.weekday,
                     "zipcode": request.body.zipcode,
                     "address": request.body.address,
@@ -286,14 +286,14 @@ exports.postImportDatabase = async (request, response, next) => {
                         // if (res.length == 0) {
                         ///Object para inserção
                         var myobj = {
-                            "name": d.write(tb_feiras[i].chr_nome),
-                            "weekday": tb_feiras[i].chr_dia,
+                            "name": d.write(tb_feiras[i].chr_nome).trim().toLowerCase(),
+                            "weekday": tb_feiras[i].chr_dia.trim().toLowerCase(),
                             "zipcode": tb_feiras[i].chr_cep.replace('-', ''),
-                            "address": tb_feiras[i].chr_rua ? d.write(tb_feiras[i].chr_rua) : null,
+                            "address": tb_feiras[i].chr_rua ? d.write(tb_feiras[i].chr_rua).trim().toLowerCase() : null,
                             "numberAddress": tb_feiras[i].chr_numero,
-                            "complement": tb_feiras[i].chr_complemento ? d.write(tb_feiras[i].chr_complemento) : null,
-                            "neighborhood": tb_feiras[i].chr_bairro,
-                            "city": tb_feiras[i].chr_cidade ? d.write(tb_feiras[i].chr_cidade) : null,
+                            "complement": tb_feiras[i].chr_complemento ? d.write(tb_feiras[i].chr_complemento).trim().toLowerCase() : null,
+                            "neighborhood": d.write(tb_feiras[i].chr_bairro).trim().toLowerCase(),
+                            "city": tb_feiras[i].chr_cidade ? d.write(tb_feiras[i].chr_cidade).trim().toLowerCase() : null,
                             "state": tb_feiras[i].chr_estado,
                             "gps": tb_feiras[i].chr_gps,
                             "datacreate": new Date(Date.now()),
