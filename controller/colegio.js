@@ -2,36 +2,61 @@ var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
+const _ = require("lodash");
 
 
 ///GET Colegio
 exports.getColegio = (request, response, next) => {
-
+    let pagination = {};
+    const sort = { active: request.query.active || 'name', direction: parseInt(request.query.direction) || 1 };
+    if (request.query.page && request.query.per_page) {
+        pagination = { page: parseInt(request.query.page), perPage: parseInt(request.query.per_page) };
+    }
+    let filter = {};
+    if (request.query.value) {
+        filter = {
+            $or: [
+                { "name": { "$regex": request.query.value, "$options": "i" } },
+                { "electoralzone": { "$regex": request.query.value, "$options": "i" } },
+                { "section": { "$regex": request.query.value, "$options": "i" } },
+                { "neighborhood": { "$regex": request.query.value, "$options": "i" } },
+                { "city": { "$regex": request.query.value, "$options": "i" } }
+            ]
+        };
+    }
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
-
         if (erro) {
-
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
-
         } else {
+            const promises = [];
 
-            db.db("baseinit").collection("colegios").find({}).toArray(function (err, res) {
-                if (err) {
-                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                }
-                else {
+            promises.push(db.db("baseinit").collection('colegios').find(filter).count());
 
-                    if (res.length != 0) {
-                        response.status(status.OK).send(res);
-                    } else {
-                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Colegio foi Cadastrada."));
-                    }
+            promises.push(db.db('baseinit')
+                .collection('colegios')
+                .find(filter)
+                .skip((pagination.perPage * pagination.page) - pagination.perPage)
+                .limit(pagination.perPage)
+                .collation({ locale: "en", })
+                .sort(sort.active, sort.direction)
+                .toArray());
 
-                }
-
-                db.close();
-            });
-
+            Q.all(promises)
+                .then((data) => {
+                    let result = {};
+                    _.each(data, (x) => {
+                        if (_.isArray(x)) {
+                            result.data = x;
+                        } else {
+                            result.total = x;
+                        }
+                    });
+                    response.status(status.OK).send(result);
+                })
+                .catch((error) => {
+                    response.status(status.NOT_FOUND).send(JSON.stringify("Colégio não encontrada."));
+                })
+                .finally(db.close);
         }
     });
 
