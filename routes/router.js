@@ -86,6 +86,7 @@ routes.post('/colegio/importdatabase', controllerColegio.postImportDatabase);
 routes.get('/map/pessoa', controllerMaps.getPessoaMaps);
 routes.get('/map/feira', controllerMaps.getFeiraMaps);
 routes.get('/map/empresa', controllerMaps.getEmpresaMaps);
+routes.get('/map/colegio', controllerMaps.getColegioMaps);
 routes.get('/map', controllerMaps.getAll);
 
 ///Home

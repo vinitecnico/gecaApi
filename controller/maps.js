@@ -4,7 +4,6 @@ var ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
 
 const querypessoa = {
-    "dados_pessoais.cpf": 0,
     "dados_pessoais.rg": 0,
     "dados_pessoais.birthDate": 0,
     "dados_pessoais.etnia": 0,
@@ -45,7 +44,6 @@ const queryFeira = {
 }
 
 const queryEmpresa = {
-    "cnpj": 0,
     "segment": 0,
     "activity": 0,
     "zipcode": 0,
@@ -62,6 +60,22 @@ const queryEmpresa = {
     "facebook": 0,
     "twitter": 0,
     "instagram": 0,
+    "datacreate": 0,
+    "dataUpdate": 0
+}
+
+const queryColegio = {    
+    "numbervoters": 0,
+    "electoralzone": 0,
+    "section": 0,
+    "specialsection": 0,
+    "zipcode": 0,
+    "address": 0,
+    "numberAddress": 0,
+    "complement": 0,
+    "neighborhood": 0,
+    "city": 0,
+    "state": 0,
     "datacreate": 0,
     "dataUpdate": 0
 }
@@ -142,6 +156,24 @@ exports.getEmpresaMaps = (request, response, next) => {
     });
 }
 
+///GET colegios
+exports.getColegioMaps = (request, response, next) => {
+    MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
+        if (erro) {
+            response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+        } else {
+            getMap(db, 'colegios', queryColegio, { 'gps': { $ne: null } })
+                .then((data) => {
+                    response.status(status.OK).send(data);
+                })
+                .catch((e) => {
+                    response.status(status.NOT_FOUND).send(JSON.stringify(e));
+                })
+                .finally(db.close);
+        }
+    });
+}
+
 exports.getAll = (request, response, next) => {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
@@ -170,6 +202,11 @@ exports.getAll = (request, response, next) => {
                 query: queryEmpresa,
                 filter: { 'gps': { $ne: null } },
                 fieldName: 'empresa'
+            }, {
+                collectionName: 'colegios',
+                query: queryColegio,
+                filter: { 'gps': { $ne: null } },
+                fieldName: 'colegio'
             }];
 
             for (let i = 0; i < items.length; i++) {
