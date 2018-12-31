@@ -264,27 +264,27 @@ exports.postImportDatabase = async (request, response, next) => {
 
                 for (var i = 0; i < tb_colegios.length; i++) {
 
-                        ///Object para inserção
-                        var myobj = {
-                            "name": d.write(tb_colegios[i].chr_nome),
-                            "numbervoters": tb_colegios[i].int_eleitores ,
-                            "electoralzone": tb_colegios[i].int_zona,
-                            "section": tb_colegios[i].chr_secao,
-                            "specialsection": tb_colegios[i].chr_secaoX,
-                            "zipcode": tb_colegios[i].chr_cep? d.write(tb_colegios[i].chr_cep.replace('-', '')) : null,
-                            "address": tb_colegios[i].chr_rua? d.write(tb_colegios[i].chr_rua) : null,
-                            "numberAddress": tb_colegios[i].chr_numero,
-                            "complement": tb_colegios[i].chr_complemento? d.write(tb_colegios[i].chr_complemento) : null,
-                            "neighborhood": tb_colegios[i].chr_bairro,
-                            "city" : tb_colegios[i].chr_cidade? d.write(tb_colegios[i].chr_cidade) : null,
-                            "state" : tb_colegios[i].chr_estado,
-                            "gps": tb_colegios[i].chr_gps,
-                            "datacreate": new Date(Date.now()),
-                            "dataUpdate": new Date(Date.now())
-                        }
+                    ///Object para inserção
+                    var myobj = {
+                        "name": d.write(tb_colegios[i].chr_nome).toLowerCase(),
+                        "numbervoters": tb_colegios[i].int_eleitores,
+                        "electoralzone": tb_colegios[i].int_zona,
+                        "section": tb_colegios[i].chr_secao,
+                        "specialsection": tb_colegios[i].chr_secaoX,
+                        "zipcode": tb_colegios[i].chr_cep ? d.write(tb_colegios[i].chr_cep.replace('-', '')) : null,
+                        "address": tb_colegios[i].chr_rua ? d.write(tb_colegios[i].chr_rua).toLowerCase() : null,
+                        "numberAddress": tb_colegios[i].chr_numero,
+                        "complement": tb_colegios[i].chr_complemento ? d.write(tb_colegios[i].chr_complemento).toLowerCase() : null,
+                        "neighborhood": tb_colegios[i].chr_bairro ? tb_colegios[i].chr_bairro.toLowerCase() : null,
+                        "city": tb_colegios[i].chr_cidade ? d.write(tb_colegios[i].chr_cidade).toLowerCase() : null,
+                        "state": tb_colegios[i].chr_estado || 'SP',
+                        "gps": tb_colegios[i].chr_gps,
+                        "datacreate": new Date(Date.now()),
+                        "dataUpdate": new Date(Date.now())
+                    }
 
-                        promises.push(dbo.collection("colegios").insertOne(myobj));
-                    
+                    promises.push(dbo.collection("colegios").insertOne(myobj));
+
                 }
                 Q.all(promises)
                     .then(() => {
