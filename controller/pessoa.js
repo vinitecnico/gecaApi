@@ -1,36 +1,75 @@
 var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
+const Q = require('q');
+const _ = require("lodash");
 
+function sortPessoa(type) {
+    switch (type) {
+        case 'cpf':
+            return 'dados_pessoais.cpf';
+        case 'city':
+            return 'endereco_contato.city';
+        default:
+            return 'dados_pessoais.name';
+    }
+}
 
 ///GET USER
 exports.getPessoa = (request, response, next) => {
+    const sort = {
+        active: sortPessoa(request.query.active),
+        direction: request.query.direction ? parseInt(request.query.direction) : 1
+    };
 
+    const pagination = {
+        page: request.query.page ? parseInt(request.query.page) : 0,
+        perPage: request.query.per_page ? parseInt(request.query.per_page) : 10
+    };
+
+    let filter = {};
+    if (request.query.value) {
+        filter = {
+            $or: [
+                { "dados_pessoais.name": { "$regex": request.query.value, "$options": "i" } },
+                { "dados_pessoais.cpf": { "$regex": request.query.value, "$options": "i" } },
+                { "endereco_contato.city": { "$regex": request.query.value, "$options": "i" } }
+            ]
+        };
+    }
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
-
         if (erro) {
-
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
-
         } else {
+            const promises = [];
 
-            db.db("baseinit").collection("pessoa").find({}).toArray(function (err, res) {
-                if (err) {
-                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                }
-                else {
+            promises.push(db.db("baseinit").collection('pessoa').find(filter).count());
 
-                    if (res.length != 0) {
-                        response.status(status.OK).send(res);
-                    } else {
-                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum usuario foi Cadastrado."));
-                    }
+            promises.push(db.db('baseinit')
+                .collection('pessoa')
+                .find(filter)
+                .skip((pagination.perPage * pagination.page) - pagination.perPage)
+                .limit(pagination.perPage)
+                .collation({ locale: "en", })
+                .sort(sort.active, sort.direction)
+                .toArray());
 
-                }
-
-                db.close();
-            });
-
+            Q.all(promises)
+                .then((data) => {
+                    let result = {};
+                    _.each(data, (x) => {
+                        if (_.isArray(x)) {
+                            result.data = x;
+                        } else {
+                            result.total = x;
+                        }
+                    });
+                    response.status(status.OK).send(result);
+                })
+                .catch((error) => {
+                    response.status(status.NOT_FOUND).send(JSON.stringify("Colégio não encontrada."));
+                })
+                .finally(db.close);
         }
     });
 
@@ -47,7 +86,7 @@ exports.getOnlyPessoa = (request, response, next) => {
 
         } else {
 
-            
+
             db.db("baseinit").collection("pessoa").find({ "dados_pessoais.cpf": request.params.id }).toArray(function (err, res) {
                 if (err) {
 
@@ -122,7 +161,7 @@ exports.postPessoa = (request, response, next) => {
                                 "neighborhood": request.body.endereco_contato.neighborhood,
                                 "city": request.body.endereco_contato.city,
                                 "state": request.body.endereco_contato.state,
-                                "gps":     request.body.endereco_contato.gps,
+                                "gps": request.body.endereco_contato.gps,
                                 "phone": request.body.endereco_contato.phone,
                                 "mobile": request.body.endereco_contato.mobile,
                                 "email": request.body.endereco_contato.email,
@@ -223,7 +262,7 @@ exports.putPessoa = (request, response, next) => {
                         "neighborhood": request.body.endereco_contato.neighborhood,
                         "city": request.body.endereco_contato.city,
                         "state": request.body.endereco_contato.state,
-                        "gps":     request.body.endereco_contato.gps,
+                        "gps": request.body.endereco_contato.gps,
                         "phone": request.body.endereco_contato.phone,
                         "mobile": request.body.endereco_contato.mobile,
                         "email": request.body.endereco_contato.email,
@@ -254,12 +293,12 @@ exports.putPessoa = (request, response, next) => {
                         "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
                         "email": request.body.notificacoes_anotacoes.email,
                         "score": request.body.notificacoes_anotacoes.score,
-                        "history": request.body.notificacoes_anotacoes.history                        
-                    },                    
+                        "history": request.body.notificacoes_anotacoes.history
+                    },
                     "dataUpdate": new Date(Date.now())
                 }
             }
-            
+
             db.db("baseinit").collection("pessoa").updateOne({ "dados_pessoais.cpf": request.params.id }, newvalues, function (err, res) {
 
                 if (err) {
