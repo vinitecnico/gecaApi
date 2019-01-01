@@ -7,11 +7,15 @@ const _ = require("lodash");
 
 ///GET Feira
 exports.getFeira = (request, response, next) => {
-    let pagination = {};
-    const sort = { active: request.query.active || 'name', direction: parseInt(request.query.direction) || 1 };
-    if (request.query.page && request.query.per_page) {
-        pagination = { page: parseInt(request.query.page), perPage: parseInt(request.query.per_page) };
-    }
+    const sort = {
+        active: request.query.active || 'name',
+        direction: request.query.direction ? parseInt(request.query.direction) : 1
+    };
+
+    const pagination = {
+        page: request.query.page ? parseInt(request.query.page) : 0,
+        perPage: request.query.per_page ? parseInt(request.query.per_page) : 10
+    };
     let filter = {};
     if(request.query.value){
         filter = {$or:[

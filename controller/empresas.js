@@ -2,35 +2,65 @@ var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
+const _ = require("lodash");
 
 ///GET Empresa
 exports.getEmpresa = (request, response, next) => {
+    const sort = {
+        active: request.query.active || 'name',
+        direction: request.query.direction ? parseInt(request.query.direction) : 1
+    };
 
+    const pagination = {
+        page: request.query.page ? parseInt(request.query.page) : 0,
+        perPage: request.query.per_page ? parseInt(request.query.per_page) : 10
+    };
+    let filter = {};
+    if (request.query.value) {
+        filter = {
+            $or: [
+                { "name": { "$regex": request.query.value, "$options": "i" } },
+                { "cnpj": { "$regex": request.query.value, "$options": "i" } },
+                { "city": { "$regex": request.query.value, "$options": "i" } },
+                { "mainContact": { "$regex": request.query.value, "$options": "i" } },
+                { "phone": { "$regex": request.query.value, "$options": "i" } },
+                { "mobile": { "$regex": request.query.value, "$options": "i" } }
+            ]
+        };
+    }
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
-
         if (erro) {
-
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
-
         } else {
+            const promises = [];
 
-            db.db("baseinit").collection("empresas").find({}).toArray(function (err, res) {
-                if (err) {
-                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                }
-                else {
+            promises.push(db.db("baseinit").collection('empresas').find(filter).count());
 
-                    if (res.length != 0) {
-                        response.status(status.OK).send(res);
-                    } else {
-                        response.status(status.NOT_FOUND).send(JSON.stringify("Nenhum Empresa foi Cadastrada."));
-                    }
+            promises.push(db.db('baseinit')
+                .collection('empresas')
+                .find(filter)
+                .skip((pagination.perPage * pagination.page) - pagination.perPage)
+                .limit(pagination.perPage)
+                .collation({ locale: "en", })
+                .sort(sort.active, sort.direction)
+                .toArray());
 
-                }
-
-                db.close();
-            });
-
+            Q.all(promises)
+                .then((data) => {
+                    let result = {};
+                    _.each(data, (x) => {
+                        if (_.isArray(x)) {
+                            result.data = x;
+                        } else {
+                            result.total = x;
+                        }
+                    });
+                    response.status(status.OK).send(result);
+                })
+                .catch((error) => {
+                    response.status(status.NOT_FOUND).send(JSON.stringify("Empresa não encontrada."));
+                })
+                .finally(db.close);
         }
     });
 
@@ -277,33 +307,33 @@ exports.postImportDatabase = async (request, response, next) => {
 
                 for (var i = 0; i < tb_empresas.length; i++) {
 
-                        ///Object para inserção
-                        var myobj = {
-                            "name": tb_empresas[i].chr_fantasia ? d.write(tb_empresas[i].chr_fantasia): null,
-                            "cnpj": tb_empresas[i].chr_cnpj.replace('.' , '').replace('\/' , '').replace('-', '').replace('.' , ''),
-                            "segment": tb_empresas[i].chr_segmento ? d.write(tb_empresas[i].chr_segmento) : null,
-                            "activity": tb_empresas[i].chr_atividade ? d.write(tb_empresas[i].chr_atividade) : null,
-                            "zipcode": tb_empresas[i].chr_cep ? d.write(tb_empresas[i].chr_cep.replace('-', '')) : null,
-                            "address": tb_empresas[i].chr_rua ? d.write(tb_empresas[i].chr_rua) : null,
-                            "numberAddress": tb_empresas[i].chr_numero,
-                            "complement": tb_empresas[i].chr_complemento?  d.write(tb_empresas[i].chr_complemento) : null,
-                            "neighborhood":tb_empresas[i].chr_bairro ? d.write(tb_empresas[i].chr_bairro) : null,
-                            "city": tb_empresas[i].chr_cidade ? d.write(tb_empresas[i].chr_cidade) : null,
-                            "state": null,
-                            "gps": null,
-                            "mainContact": tb_empresas[i].chr_cidade ? d.write(tb_empresas[i].chr_contato): null,
-                            "phone": tb_empresas[i].chr_telefone,
-                            "mobile": tb_empresas[i].chr_celular,
-                            "email": tb_empresas[i].chr_email,
-                            "facebook": tb_empresas[i].chr_face,
-                            "twitter": tb_empresas[i].chr_twitter,
-                            "instagram": null,
-                            "datacreate": new Date(Date.now()),
-                            "dataUpdate": new Date(Date.now())
-                        }
+                    ///Object para inserção
+                    var myobj = {
+                        "name": tb_empresas[i].chr_fantasia ? d.write(tb_empresas[i].chr_fantasia) : null,
+                        "cnpj": tb_empresas[i].chr_cnpj.replace('.', '').replace('\/', '').replace('-', '').replace('.', ''),
+                        "segment": tb_empresas[i].chr_segmento ? d.write(tb_empresas[i].chr_segmento) : null,
+                        "activity": tb_empresas[i].chr_atividade ? d.write(tb_empresas[i].chr_atividade) : null,
+                        "zipcode": tb_empresas[i].chr_cep ? d.write(tb_empresas[i].chr_cep.replace('-', '')) : null,
+                        "address": tb_empresas[i].chr_rua ? d.write(tb_empresas[i].chr_rua) : null,
+                        "numberAddress": tb_empresas[i].chr_numero,
+                        "complement": tb_empresas[i].chr_complemento ? d.write(tb_empresas[i].chr_complemento) : null,
+                        "neighborhood": tb_empresas[i].chr_bairro ? d.write(tb_empresas[i].chr_bairro) : null,
+                        "city": tb_empresas[i].chr_cidade ? d.write(tb_empresas[i].chr_cidade) : null,
+                        "state": null,
+                        "gps": null,
+                        "mainContact": tb_empresas[i].chr_cidade ? d.write(tb_empresas[i].chr_contato) : null,
+                        "phone": tb_empresas[i].chr_telefone,
+                        "mobile": tb_empresas[i].chr_celular,
+                        "email": tb_empresas[i].chr_email,
+                        "facebook": tb_empresas[i].chr_face,
+                        "twitter": tb_empresas[i].chr_twitter,
+                        "instagram": null,
+                        "datacreate": new Date(Date.now()),
+                        "dataUpdate": new Date(Date.now())
+                    }
 
-                        promises.push(dbo.collection("empresas").insertOne(myobj));
-                  
+                    promises.push(dbo.collection("empresas").insertOne(myobj));
+
                 }
                 Q.all(promises)
                     .then(() => {
