@@ -101,22 +101,22 @@ exports.postUser = (request, response, next) => {
 
                         ///Object para inserção
                         var myobj = {
-                            "nome": request.body.nome,
+                            "name": request.body.name,
                             "cpf": request.body.cpf,
-                            "telefone": request.body.telefone,
+                            "phone": request.body.phone,
                             "email": request.body.email,
-                            "senha": request.body.senha,
-                            "imagemtheme": request.body.imagemtheme,
-                            "tituloTheme": request.body.tituloTheme,
-                            "imagemUsuario": request.body.imagemUsuario,
-                            "corPadrao": request.body.corPadrao,
+                            "password": request.body.password,
+                            "imageTheme": request.body.imageTheme,
+                            "titleTheme": request.body.titleTheme,
+                            "imageUser": request.body.imageUser,
+                            "defaultColor": request.body.defaultColor,
                             "menu": [request.body.menu],
                             "SubMenu": [request.body.subMenu],
-                            "Perfil": request.body.perfil,
-                            "Ativo": true,
+                            "profile": request.body.profile,
+                            "active": true,
                             //"token": "#0339usdlfdk2394uslkfdwrouvkljfdk7",
-                            "datacreate": new Date(Date.now()),
-                            "dataUpdate": new Date(Date.now())
+                            "datecreate": new Date(Date.now()),
+                            "dateUpdate": new Date(Date.now())
                         }
 
                         dbo.collection("users").insertOne(myobj, function (err, res) {
@@ -162,21 +162,21 @@ exports.putUser = (request, response, next) => {
             /// DataBase
             var newvalues = {
                 $set: {
-                    "nome": request.body.nome,
-                    "cpf": parseInt(request.body.cpf),
-                    "telefone": request.body.telefone,
+                    "name": request.body.name,
+                    "cpf": request.body.cpf,
+                    "phone": request.body.phone,
                     "email": request.body.email,
-                    "senha": request.body.senha,
-                    "imagemtheme": request.body.imagemtheme,
-                    "tituloTheme": request.body.tituloTheme,
-                    "imagemUsuario": request.body.imagemUsuario,
-                    "corPadrao": request.body.corPadrao,
+                    "password": request.body.password,
+                    "imageTheme": request.body.imageTheme,
+                    "titleTheme": request.body.titleTheme,
+                    "imageUser": request.body.imageUser,
+                    "defaultColor": request.body.defaultColor,
                     "menu": [request.body.menu],
                     "SubMenu": [request.body.subMenu],
-                    "Perfil": request.body.perfil,
-                    "Ativo": request.body.Ativo,
-                    //"token": "#0339usdlfdk2394uslkfdwrouvkljfdk7",
-                    "dataUpdate": new Date(Date.now())
+                    "profile": request.body.profile,
+                    "active": true,
+                    //"token": "#0339usdlfdk2394uslkfdwrouvkljfdk7",                    
+                    "dateUpdate": new Date(Date.now())
                 }
             }
             db.db("baseinit").collection("users").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
