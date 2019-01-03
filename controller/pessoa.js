@@ -190,6 +190,7 @@ exports.postPessoa = (request, response, next) => {
                                 "telefone": request.body.notificacoes_anotacoes.telefone,
                                 "sms": request.body.notificacoes_anotacoes.sms,
                                 "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
+                                "telegram": request.body.notificacoes_anotacoes.telegram,
                                 "email": request.body.notificacoes_anotacoes.email,
                                 "score": request.body.notificacoes_anotacoes.score,
                                 "history": request.body.notificacoes_anotacoes.history,
@@ -291,6 +292,7 @@ exports.putPessoa = (request, response, next) => {
                         "telefone": request.body.notificacoes_anotacoes.telefone,
                         "sms": request.body.notificacoes_anotacoes.sms,
                         "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
+                        "telegram": request.body.notificacoes_anotacoes.telegram,
                         "email": request.body.notificacoes_anotacoes.email,
                         "score": request.body.notificacoes_anotacoes.score,
                         "history": request.body.notificacoes_anotacoes.history
