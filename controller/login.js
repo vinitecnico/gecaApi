@@ -14,7 +14,7 @@ exports.postLogin = (request, response, next) => {
         } else {
             
             
-            db.db("baseinit").collection("users").find({ email: request.body.email , senha: request.body.senha}).toArray(function (err, res) {
+            db.db("baseinit").collection("users").find({ email: request.body.email , password: request.body.password}).toArray(function (err, res) {
                 if (err) {
 
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
