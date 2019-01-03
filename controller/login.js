@@ -23,7 +23,7 @@ exports.postLogin = (request, response, next) => {
                 else {
 
                     if (res.length != 0) {
-                        response.status(status.OK).send(JSON.stringify(res[0].Ativo));
+                        response.status(status.OK).send(JSON.stringify(res[0].active));
                     } else {
                         response.status(status.UNAUTHORIZED).send(JSON.stringify(false));
                     }
