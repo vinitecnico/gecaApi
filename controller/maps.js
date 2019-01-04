@@ -2,6 +2,7 @@ var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
+const request = require('request');
 
 const querypessoa = {
     "dados_pessoais.rg": 0,
@@ -229,4 +230,50 @@ exports.getAll = (request, response, next) => {
         }
     });
 
+}
+
+exports.getViaCep =(req, res) => {
+    
+    var clientServerOptions = {
+        uri: 'https://viacep.com.br/ws/' + req.params.id +'/json/',
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    try {
+        request(clientServerOptions, (error, response, body) => {
+            if (error) {
+                res.status(status.BAD_REQUEST).send(error);
+            } else {
+                res.status(status.OK).send(JSON.parse(body));
+            }
+        });
+    } catch (error) {
+        response.status(status.UNAUTHORIZED).send(JSON.stringify('Erro para retornar Cep!'));
+    }
+}
+
+exports.getGoogleMaps =(req, res) => {
+    
+    var clientServerOptions = {
+        uri: 'https://maps.googleapis.com/maps/api/geocode/json?address='+ req.params.id +'&key=' + require("../conf/config").keyGoogleMaps ,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    try {
+        request(clientServerOptions, (error, response, body) => {
+            if (error) {
+                res.status(status.BAD_REQUEST).send(error);
+            } else {
+                res.status(status.OK).send(JSON.parse(body));
+            }
+        });
+    } catch (error) {
+        response.status(status.UNAUTHORIZED).send(JSON.stringify('Erro para retornar Consulta no Google Maps!'));
+    }
 }

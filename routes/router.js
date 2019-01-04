@@ -88,6 +88,9 @@ routes.get('/map/feira', controllerMaps.getFeiraMaps);
 routes.get('/map/empresa', controllerMaps.getEmpresaMaps);
 routes.get('/map/colegio', controllerMaps.getColegioMaps);
 routes.get('/map', controllerMaps.getAll);
+routes.get('/map/viacep/:id', controllerMaps.getViaCep);
+routes.get('/map/getGoogleMaps/:id', controllerMaps.getGoogleMaps);
+
 
 ///Home
 routes.get('/home', controllerHome.getCountersHome);

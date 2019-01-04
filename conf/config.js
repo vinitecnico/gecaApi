@@ -7,5 +7,6 @@
     porthost: 587,
     secure: false,
     usermail: "gecaenvio@gmail.com",
-    passmail: "geca2018"        
+    passmail: "geca2018" ,
+    keyGoogleMaps: 'AIzaSyAdyvRIRT1iMFRzE4v8BzfGXc-Oc9OFTwk'       
   };
