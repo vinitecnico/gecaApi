@@ -145,7 +145,9 @@ exports.postColegio = (request, response, next) => {
                             "city": request.body.city,
                             "state": request.body.state,
                             "gps": request.body.gps,
-                            "datacreate": new Date(Date.now()),
+                            "userCreate" : request.decoded.name,
+                            "dataCreate": new Date(Date.now()),
+                            "userUpdate" : request.decoded.name,
                             "dataUpdate": new Date(Date.now())
                         }
 
@@ -203,6 +205,7 @@ exports.putColegio = (request, response, next) => {
                     "city": request.body.city,
                     "state": request.body.state,
                     "gps": request.body.gps,
+                    "userUpdate" : request.decoded.name,
                     "dataUpdate": new Date(Date.now())
                 }
             }

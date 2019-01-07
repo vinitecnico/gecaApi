@@ -101,7 +101,9 @@ exports.postPerfil = (request, response, next) => {
                     let myobj = {
                         "nomePerfil": request.body.nomePerfil,
                         "idPerfil": res.length + 1,
-                        "datacreate": new Date(Date.now()),
+                        "userCreate" : request.decoded.name,
+                        "dataCreate": new Date(Date.now()),
+                        "userUpdate" : request.decoded.name,
                         "dataUpdate": new Date(Date.now())
                     }      
 
@@ -144,6 +146,7 @@ exports.putPerfil = (request, response, next) => {
             var newvalues = {
                 $set: {
                     "nomePerfil": request.body.nomePerfil,
+                    "userUpdate" : request.decoded.name,
                     "dataUpdate": new Date(Date.now())
                 }
             }

@@ -100,7 +100,9 @@ exports.postSubMenu = (request, response, next) => {
                         "nomeSubMenu": request.body.nomeSubMenu,
                         "idMenu": request.body.idMenu,
                         "idSubMenu": res.length + 1,
-                        "datacreate": new Date(Date.now()),
+                        "userCreate" : request.decoded.name,
+                        "dataCreate": new Date(Date.now()),
+                        "userUpdate" : request.decoded.name,
                         "dataUpdate": new Date(Date.now())
                     }      
 
@@ -147,6 +149,7 @@ exports.putSubMenu = (request, response, next) => {
                 $set: {
                     "nomeSubMenu": request.body.nomeSubMenu,
                     "idMenu": parseInt(request.body.idMenu),
+                    "userUpdate" : request.decoded.name,
                     "dataUpdate": new Date(Date.now())
                 }
             }

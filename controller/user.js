@@ -144,7 +144,9 @@ exports.postUser = (request, response, next) => {
                             "SubMenu": [request.body.subMenu],
                             "profile": request.body.profile,
                             "active": true,
-                            "datecreate": new Date(Date.now()),
+                            "userCreate" : request.decoded.name,
+                            "dateCreate": new Date(Date.now()),
+                            "userUpdate" : request.decoded.name,
                             "dateUpdate": new Date(Date.now())
                         }
 
@@ -204,7 +206,7 @@ exports.putUser = (request, response, next) => {
                     "SubMenu": [request.body.subMenu],
                     "profile": request.body.profile,
                     "active": true,
-                    //"token": "#0339usdlfdk2394uslkfdwrouvkljfdk7",                    
+                    "userUpdate" : request.decoded.name,                  
                     "dateUpdate": new Date(Date.now())
                 }
             }

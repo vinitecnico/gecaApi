@@ -98,7 +98,9 @@ exports.postMenu = (request, response, next) => {
                   let  myobj = {
                         "nomeMenu": request.body.nomeMenu,
                         "idMenu": res.length + 1,
-                        "datacreate": new Date(Date.now()),
+                        "userCreate" : request.decoded.name,
+                        "dataCreate": new Date(Date.now()),
+                        "userUpdate" : request.decoded.name,
                         "dataUpdate": new Date(Date.now())
                     }      
 
@@ -144,6 +146,7 @@ exports.putMenu = (request, response, next) => {
             var newvalues = {
                 $set: {
                     "nomeMenu": request.body.nomeMenu,
+                    "userUpdate" : request.decoded.name,
                     "dataUpdate": new Date(Date.now())
                 }
             }
