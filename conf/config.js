@@ -8,5 +8,7 @@
     secure: false,
     usermail: "gecaenvio@gmail.com",
     passmail: "geca2018" ,
-    keyGoogleMaps: 'AIzaSyAdyvRIRT1iMFRzE4v8BzfGXc-Oc9OFTwk'       
+    keyGoogleMaps: 'AIzaSyAdyvRIRT1iMFRzE4v8BzfGXc-Oc9OFTwk',    
+    configName: 'g3c4T0k3n#!', 
+    expireInTime: 10800  
   };

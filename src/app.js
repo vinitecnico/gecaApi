@@ -5,6 +5,7 @@ const status = require('http-status')
 const conf = require("../conf/config");
 const bodyParser = require('body-parser');
 const port = process.env.PORT || conf.port;
+var jwt = require('jsonwebtoken');
 
 
 /// Criando Configurações para Utilização dos VERBS [POST, GET, PUT, DELETE]
@@ -20,9 +21,38 @@ app.use(function (req, res, next) {
 });
 
 app.use(express.json())
+
+//TODO: Criar a rota middleware para poder verificar e autenticar o token
+app.use(function (req, res, next) {
+
+    if (!req.originalUrl == "/api/login/") {
+        var token = req.headers['x-access-token'];
+
+        if (token) {
+            jwt.verify(token, require("../conf/config").configName, function (err, decoded) {
+                if (err) {
+                    return res.json({ success: false, message: 'Falha ao tentar autenticar o token!' });
+                } else {
+                    //se tudo correr bem, salver a requisição para o uso em outras rotas
+                    req.decoded = decoded;
+                    next();
+                }
+            });
+
+        } else {
+            // se não tiver o token, retornar o erro 403
+            return res.status(403).send({
+                success: false,
+                message: 'Não há token.'
+            });
+        }
+    }else{
+        next();
+    }
+
+});
+
 app.use("/api", routespath);
-
-
 
 ///MIDDLEWARE 404: url's não encontradas;
 app.use((request, response, next) => {
@@ -37,7 +67,7 @@ app.use((error, request, response, next) => {
 /// Criando Servidor
 const server = require('http').createServer(app)
 
-/// Input 
+/// Listen 
 server.listen(port, () => {
     console.log(`Servidor em execução na Port:${port}`)
 });

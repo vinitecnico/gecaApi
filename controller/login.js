@@ -1,38 +1,59 @@
 var MongoClient = require('mongodb').MongoClient;
-const status = require('http-status');
-var ObjectId = require('mongodb').ObjectId;
+const status    = require('http-status');
+var bcrypt      = require('bcryptjs');
+var jwt         = require('jsonwebtoken');
 
-///POST LOGIN
+var obj = {};
+
 exports.postLogin = (request, response, next) => {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
-        if (erro) {
-
+        if (erro)
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
-        } else {
-            
-            
-            db.db("baseinit").collection("users").find({ email: request.body.email , password: request.body.password}).toArray(function (err, res) {
-                if (err) {
+        db.db("baseinit").collection("users").findOne({ email: request.body.email }, function (err, res) {
+            if (err)
+                response.status(status.BAD_REQUEST).send(JSON.stringify(err));
+            if (!res) {
 
-                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-
+                obj = {
+                    sucess : false,
+                    status : status.UNAUTHORIZED ,
+                    messsage : 'Autenticação do Usuário falhou. Usuário não encontrado!',
+                    token: "Não há token."
                 }
-                else {
 
-                    if (res.length != 0) {
-                        response.status(status.OK).send(JSON.stringify(res[0].active));
-                    } else {
-                        response.status(status.UNAUTHORIZED).send(JSON.stringify(false));
+                response.status(status.UNAUTHORIZED).send(obj);                
+
+            } else if (res) {
+
+                if(!bcrypt.compareSync(request.body.password, res.password)) {
+
+                    obj = {
+                        sucess : false,
+                        status : status.UNAUTHORIZED,                        
+                        messsage: 'Autenticação do Usuário falhou. Senha incorreta!',
+                        token: "Não há token."
                     }
 
+                    response.status(status.UNAUTHORIZED).send(obj);                  
                 }
-                db.close();
-            });
+                else{                                        
 
-        }
+                    obj = {
+                        sucess : true,
+                        status : status.OK, 
+                        name : res.name ,
+                        messsage: 'Usuário Autenticado com Sucesso!', 
+                        token : jwt.sign(res, require("../conf/config").configName, {expiresIn: require("../conf/config").expireInTime })
+                    }
+
+                    response.status(status.OK).send(obj);
+                }
+            }
+
+        });
     });
 
 }

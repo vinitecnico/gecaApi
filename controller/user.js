@@ -1,8 +1,9 @@
 var MongoClient = require('mongodb').MongoClient;
-const status = require('http-status');
-var ObjectId = require('mongodb').ObjectId;
-const Q = require('q');
-const _ = require("lodash");
+const status    = require('http-status');
+var ObjectId    = require('mongodb').ObjectId;
+const Q         = require('q');
+const _         = require("lodash");
+var bcrypt      = require('bcryptjs');
 
 ///GET USER
 exports.getUsers = (request, response, next) => {
@@ -134,7 +135,7 @@ exports.postUser = (request, response, next) => {
                             "cpf": request.body.cpf,
                             "phone": request.body.phone,
                             "email": request.body.email,
-                            "password": request.body.password,
+                            "password": bcrypt.hashSync(request.body.password, 10),
                             "imageTheme": request.body.imageTheme,
                             "titleTheme": request.body.titleTheme,
                             "imageUser": request.body.imageUser,
@@ -143,7 +144,6 @@ exports.postUser = (request, response, next) => {
                             "SubMenu": [request.body.subMenu],
                             "profile": request.body.profile,
                             "active": true,
-                            //"token": "#0339usdlfdk2394uslkfdwrouvkljfdk7",
                             "datecreate": new Date(Date.now()),
                             "dateUpdate": new Date(Date.now())
                         }

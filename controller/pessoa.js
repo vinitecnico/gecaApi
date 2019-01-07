@@ -67,7 +67,7 @@ exports.getPessoa = (request, response, next) => {
                     response.status(status.OK).send(result);
                 })
                 .catch((error) => {
-                    response.status(status.NOT_FOUND).send(JSON.stringify("Colégio não encontrada."));
+                    response.status(status.NOT_FOUND).send(JSON.stringify("Usuario não encontrada."));
                 })
                 .finally(db.close);
         }
