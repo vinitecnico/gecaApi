@@ -25,8 +25,8 @@ app.use(express.json())
 //TODO: Criar a rota middleware para poder verificar e autenticar o token
 app.use(function (req, res, next) {
 
-    if (req.originalUrl != "/api/login/") {
-        var token = req.headers['x-access-token'];
+    if (req.originalUrl != "/api/login") {
+        var token = req.headers['Authorization'];
 
         if (token) {
             jwt.verify(token, require("../conf/config").configName, function (err, decoded) {
