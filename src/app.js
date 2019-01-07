@@ -26,7 +26,7 @@ app.use(express.json())
 app.use(function (req, res, next) {
 
     if (req.originalUrl != "/api/login") {
-        var token = req.headers['Authorization'];
+        var token = req.headers['x-access-token'];
 
         if (token) {
             jwt.verify(token, require("../conf/config").configName, function (err, decoded) {
