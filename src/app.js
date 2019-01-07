@@ -36,14 +36,14 @@ app.use(function (req, res, next) {
                         message: 'Falha ao tentar autenticar o token!'
                    });
                 } else {
-                    se tudo correr bem, salver a requisição para o uso em outras rotas
+                    //se tudo correr bem, salver a requisição para o uso em outras rotas
                     req.decoded = decoded;
                     next();
                 }
             });
 
         } else {
-            se não tiver o token, retornar o erro 403
+            //se não tiver o token, retornar o erro 403
             return res.status(403).send({
                 success: false,
                 message: 'Não há token.'
