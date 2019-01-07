@@ -31,7 +31,10 @@ app.use(function (req, res, next) {
         if (token) {
             jwt.verify(token, require("../conf/config").configName, function (err, decoded) {
                 if (err) {
-                    return res.json({ success: false, message: 'Falha ao tentar autenticar o token!' });
+                    return res.status(403).send({
+                        success: false,
+                        message: 'Falha ao tentar autenticar o token!'
+                   });
                 } else {
                     //se tudo correr bem, salver a requisição para o uso em outras rotas
                     req.decoded = decoded;
