@@ -23,37 +23,37 @@ app.use(function (req, res, next) {
 app.use(express.json())
 
 //TODO: Criar a rota middleware para poder verificar e autenticar o token
-app.use(function (req, res, next) {
+// app.use(function (req, res, next) {
 
-    if (req.originalUrl != "/api/login") {
-        var token = req.headers['x-access-token'];
+//     if (req.originalUrl != "/api/login") {
+//         var token = req.headers['x-access-token'];
 
-        if (token) {
-            jwt.verify(token, require("../conf/config").configName, function (err, decoded) {
-                if (err) {
-                    return res.status(403).send({
-                        success: false,
-                        message: 'Falha ao tentar autenticar o token!'
-                   });
-                } else {
-                    //se tudo correr bem, salver a requisição para o uso em outras rotas
-                    req.decoded = decoded;
-                    next();
-                }
-            });
+//         if (token) {
+//             jwt.verify(token, require("../conf/config").configName, function (err, decoded) {
+//                 if (err) {
+//                     return res.status(403).send({
+//                         success: false,
+//                         message: 'Falha ao tentar autenticar o token!'
+//                    });
+//                 } else {
+//                     se tudo correr bem, salver a requisição para o uso em outras rotas
+//                     req.decoded = decoded;
+//                     next();
+//                 }
+//             });
 
-        } else {
-            // se não tiver o token, retornar o erro 403
-            return res.status(403).send({
-                success: false,
-                message: 'Não há token.'
-            });
-        }
-    }else{
-        next();
-    }
+//         } else {
+//             se não tiver o token, retornar o erro 403
+//             return res.status(403).send({
+//                 success: false,
+//                 message: 'Não há token.'
+//             });
+//         }
+//     }else{
+//         next();
+//     }
 
-});
+// });
 
 app.use("/api", routespath);
 
