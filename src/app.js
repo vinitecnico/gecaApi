@@ -3,6 +3,7 @@ const express = require('express');
 const routespath = require("../routes/router");
 const status = require('http-status')
 const conf = require("../conf/config");
+var cors = require('cors')
 const bodyParser = require('body-parser');
 const port = process.env.PORT || conf.port;
 var jwt = require('jsonwebtoken');
@@ -13,50 +14,44 @@ var jwt = require('jsonwebtoken');
 const app = express();
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Credentials' , "true");
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization, x-access-token');
-    res.setHeader('Content-Type', 'application/json');
-    next();
-});
+
+app.use(cors());
 
 app.use(express.json())
 
 //TODO: Criar a rota middleware para poder verificar e autenticar o token
-// app.use(function (req, res, next) {
+app.use(function (req, res, next) {
 
-//     if (req.originalUrl != "/api/login") {
-//         //var token = req.headers['x-access-token'];
-//         var token = req.headers.authorization.replace('Bearer ' , '')
+    if (req.originalUrl != "/api/login") {
+        //var token = req.headers['x-access-token'];
+        var tokens = req.headers['authorization'].replace('Bearer ' , '')
 
-//         if (token) {
-//             jwt.verify(token, require("../conf/config").configName, function (err, decoded) {
-//                 if (err) {
-//                     return res.status(403).send({
-//                         success: false,
-//                         message: 'Falha ao tentar autenticar o token!'
-//                    });
-//                 } else {
-//                     //se tudo correr bem, salver a requisição para o uso em outras rotas
-//                     req.decoded = decoded;
-//                     next();
-//                 }
-//             });
+        if (tokens) {
+            jwt.verify(tokens, require("../conf/config").configName, function (err, decoded) {
+                if (err) {
+                    return res.status(403).send({
+                        success: false,
+                        message: 'Falha ao tentar autenticar o token!'
+                   });
+                } else {
+                    //se tudo correr bem, salver a requisição para o uso em outras rotas
+                    req.decoded = decoded;
+                    next();
+                }
+            });
 
-//         } else {
-//             //se não tiver o token, retornar o erro 403
-//             return res.status(403).send({
-//                 success: false,
-//                 message: 'Não há token.'
-//             });
-//         }
-//     }else{
-//         next();
-//     }
+        } else {
+            //se não tiver o token, retornar o erro 403
+            return res.status(403).send({
+                success: false,
+                message: 'Não há token.'
+            });
+        }
+    }else{
+        next();
+    }
 
-// });
+});
 
 app.use("/api", routespath);
 
