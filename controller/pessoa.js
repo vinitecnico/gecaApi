@@ -196,9 +196,9 @@ exports.postPessoa = (request, response, next) => {
                                 "history": request.body.notificacoes_anotacoes.history,
                                 "datacreatehistory": new Date(Date.now())
                             },
-                            "userCreate" : request.decoded.name,
+                            //"userCreate" : request.decoded.name,
                             "dataCreate": new Date(Date.now()),
-                            "userUpdate" : request.decoded.name,
+                            //"userUpdate" : request.decoded.name,
                             "dataUpdate": new Date(Date.now())
                         }
 
@@ -299,7 +299,7 @@ exports.putPessoa = (request, response, next) => {
                         "score": request.body.notificacoes_anotacoes.score,
                         "history": request.body.notificacoes_anotacoes.history
                     },
-                    "userUpdate" : request.decoded.name,
+                    //"userUpdate" : request.decoded.name,
                     "dataUpdate": new Date(Date.now())
                 }
             }

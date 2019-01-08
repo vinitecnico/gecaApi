@@ -150,9 +150,9 @@ exports.postEmpresa = (request, response, next) => {
                             "facebook": request.body.facebook,
                             "twitter": request.body.twitter,
                             "instagram": request.body.instagram,
-                            "userCreate" : request.decoded.name,
+                            //"userCreate" : request.decoded.name,
                             "dataCreate": new Date(Date.now()),
-                            "userUpdate" : request.decoded.name,
+                            //"userUpdate" : request.decoded.name,
                             "dataUpdate": new Date(Date.now())
                         }
 
