@@ -29,10 +29,10 @@ app.use(function (req, res, next) {
 
     if (req.originalUrl != "/api/login") {
         //var token = req.headers['x-access-token'];
-        var token = req.headers['authorization'].replace('Bearer ' , '')
+        var tokens = req.headers['authorization'].replace('Bearer ' , '')
 
-        if (token) {
-            jwt.verify(token, require("../conf/config").configName, function (err, decoded) {
+        if (tokens) {
+            jwt.verify(tokens, require("../conf/config").configName, function (err, decoded) {
                 if (err) {
                     return res.status(403).send({
                         success: false,
