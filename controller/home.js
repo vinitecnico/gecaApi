@@ -42,6 +42,53 @@ function getTotalCharts(db) {
     return defer.promise;
 }
 
+function getTotalChartsEtnia(db) {
+    const defer = Q.defer();
+    db.db('baseinit').collection('pessoa')
+        .find({})
+        .toArray(function (err, res) {
+            if (err) {
+                defer.reject(JSON.stringify(err));
+            } else {
+                const charts = {
+                    etnia: {}
+                };
+
+                charts.etnia = _.chain(res)
+                    .map((x) => {
+
+                        switch (_.lowerCase(x.dados_pessoais.etnia)) {
+                            case "parda":
+                                return 'parda';
+                                break;
+                            case "negro":
+                                return 'negro';
+                                break;
+                            case "latino hispanico":
+                                return 'latino/hispânico';
+                                break;
+                            case "asiatico":
+                                return 'asiatico';
+                                break;
+                            case "branco":
+                                return 'branco';
+                                break;                                
+                            default:
+                                return 'Não definido';
+                                break;
+                        }
+
+                        //return _.lowerCase(x.dados_pessoais.etnia) == 'parda' ? 'parda' : 'no parda';
+                    })
+                    .countBy()
+                    .value();
+
+                defer.resolve(charts);
+            }
+        });
+    return defer.promise;
+}
+
 ///GET Home
 exports.getCountersHome = (request, response, next) => {
 
@@ -87,6 +134,15 @@ exports.getCountersHome = (request, response, next) => {
             promises.push(getTotalCharts(db)
                 .then((data) => {
                     myObjinside.charts = data;
+                    return Q.resolve(data);
+                })
+                .catch((e) => {
+                    return Q.reject(e);
+                }));
+
+            promises.push(getTotalChartsEtnia(db)
+                .then((data) => {
+                    myObjinside.charts.etnia = data.etnia;
                     return Q.resolve(data);
                 })
                 .catch((e) => {
