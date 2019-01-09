@@ -1,6 +1,6 @@
 var MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
-var ObjectId = require('mongodb').ObjectId;
+const _ = require("lodash");
 const Q = require('q');
 
 function getCountCollection(db, collectionName) {
@@ -17,7 +17,79 @@ function getCountCollection(db, collectionName) {
     return defer.promise;
 }
 
-///GET Colegio
+function getTotalCharts(db) {
+    const defer = Q.defer();
+    db.db('baseinit').collection('pessoa')
+        .find({})
+        .toArray(function (err, res) {
+            if (err) {
+                defer.reject(JSON.stringify(err));
+            } else {
+                const charts = {
+                    gender: {}
+                };
+
+                charts.gender = _.chain(res)
+                    .map((x) => {
+                        return _.lowerCase(x.dados_pessoais.sexo) == 'masculino' ? 'male' : 'female';
+                    })
+                    .countBy()
+                    .value();
+
+                defer.resolve(charts);
+            }
+        });
+    return defer.promise;
+}
+
+function getTotalChartsEtnia(db) {
+    const defer = Q.defer();
+    db.db('baseinit').collection('pessoa')
+        .find({})
+        .toArray(function (err, res) {
+            if (err) {
+                defer.reject(JSON.stringify(err));
+            } else {
+                const charts = {
+                    etnia: {}
+                };
+
+                charts.etnia = _.chain(res)
+                    .map((x) => {
+
+                        switch (_.lowerCase(x.dados_pessoais.etnia)) {
+                            case "parda":
+                                return 'parda';
+                                break;
+                            case "negro":
+                                return 'negro';
+                                break;
+                            case "latino hispanico":
+                                return 'latino/hispânico';
+                                break;
+                            case "asiatico":
+                                return 'asiatico';
+                                break;
+                            case "branco":
+                                return 'branco';
+                                break;                                
+                            default:
+                                return 'Não definido';
+                                break;
+                        }
+
+                        //return _.lowerCase(x.dados_pessoais.etnia) == 'parda' ? 'parda' : 'no parda';
+                    })
+                    .countBy()
+                    .value();
+
+                defer.resolve(charts);
+            }
+        });
+    return defer.promise;
+}
+
+///GET Home
 exports.getCountersHome = (request, response, next) => {
 
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
@@ -27,8 +99,11 @@ exports.getCountersHome = (request, response, next) => {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
 
         } else {
-            var myObjmain = []
-            var myObjinside = {}
+            const myObjmain = []
+            const myObjinside = {
+                totalItems: {},
+                charts: {}
+            }
             const promises = [];
 
             const items = [{
@@ -48,7 +123,7 @@ exports.getCountersHome = (request, response, next) => {
             for (let i = 0; i < items.length; i++) {
                 promises.push(getCountCollection(db, items[i].collectionName)
                     .then((data) => {
-                        myObjinside[items[i].fieldName] = data;
+                        myObjinside.totalItems[items[i].fieldName] = data;
                         return Q.resolve(data);
                     })
                     .catch((e) => {
@@ -56,6 +131,23 @@ exports.getCountersHome = (request, response, next) => {
                     }));
             }
 
+            promises.push(getTotalCharts(db)
+                .then((data) => {
+                    myObjinside.charts = data;
+                    return Q.resolve(data);
+                })
+                .catch((e) => {
+                    return Q.reject(e);
+                }));
+
+            promises.push(getTotalChartsEtnia(db)
+                .then((data) => {
+                    myObjinside.charts.etnia = data.etnia;
+                    return Q.resolve(data);
+                })
+                .catch((e) => {
+                    return Q.reject(e);
+                }));
 
             Q.all(promises)
                 .then(() => {
