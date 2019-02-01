@@ -57,6 +57,7 @@ routes.get('/pessoa', controllerPessoa.getPessoa);
 routes.get('/pessoa/:id', controllerPessoa.getOnlyPessoa);
 routes.put('/pessoa/:id', controllerPessoa.putPessoa);
 routes.delete('/pessoa/:id', controllerPessoa.deletePessoa);
+routes.post('/pessoa/importdatabase', controllerPessoa.postImportDatabase);
 
 ///Feira
 routes.post('/feira', controllerFeira.postFeira);

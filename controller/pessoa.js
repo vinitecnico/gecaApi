@@ -3,6 +3,7 @@ const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
 const _ = require("lodash");
+const htmlDecode = require('js-htmlencode').htmlDecode;
 
 function sortPessoa(type) {
     switch (type) {
@@ -370,4 +371,95 @@ exports.deletePessoa = (request, response, next) => {
         }
     });
 
+}
+
+///POST import database
+exports.postImportDatabase = async (request, response, next) => {
+    try {
+        MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, (erro, db) => {
+            if (erro) {
+                response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+            } else {
+                /// DataBase
+                const dbo = db.db("baseinit");
+                const promises = [];
+                const tb_pessoas = require('../dbFile/tb_pessoas.json');
+
+                for (var i = 0; i < tb_pessoas.length; i++) {
+                    if (tb_pessoas[i].chr_nome) {
+                        const item = {
+                            "dados_pessoais": {
+                                "name": htmlDecode(tb_pessoas[i].chr_nome.trim().toLowerCase()),
+                                "cpf": tb_pessoas[i].chr_cpf,
+                                "rg": tb_pessoas[i].chr_rg,
+                                "birthDate":tb_pessoas[i].dt_aniversario,
+                                "etnia": tb_pessoas[i].chr_etnia ? tb_pessoas[i].chr_etnia.toLowerCase(): null,
+                                "motherName": tb_pessoas[i].chr_nome_mae ? htmlDecode(tb_pessoas[i].chr_nome_mae.trim().toLowerCase()): null,
+                                "sexo": htmlDecode(tb_pessoas[i].chr_sexo.trim()),
+                                "transgenero": tb_pessoas[i].chr_trans ? tb_pessoas[i].chr_trans == '0' ? 'Travesti' : 'Transexual': null,
+                                "orientacosexusal": tb_pessoas[i].chr_orientacao ? htmlDecode(tb_pessoas[i].chr_orientacao.trim().toLowerCase()) : null,
+                                "socialName": tb_pessoas[i].chr_transNome ? htmlDecode(tb_pessoas[i].chr_transNome.trim().toLowerCase()): null
+                            },
+                            "endereco_contato": {
+                                "zipcode": tb_pessoas[i].chr_cep,
+                                "address": tb_pessoas[i].chr_rua ? htmlDecode(tb_pessoas[i].chr_rua.trim().toLowerCase()): null,
+                                "numberAddress": tb_pessoas[i].chr_numero ? htmlDecode(tb_pessoas[i].chr_numero.trim().toLowerCase()): null,
+                                "complement": tb_pessoas[i].chr_complemento ? htmlDecode(tb_pessoas[i].chr_complemento.trim().toLowerCase()): null,
+                                "neighborhood": tb_pessoas[i].chr_bairro ? htmlDecode(tb_pessoas[i].chr_bairro.trim().toLowerCase()): null,
+                                "city": tb_pessoas[i].chr_cidade ? htmlDecode(tb_pessoas[i].chr_cidade.trim().toLowerCase()): null,
+                                "state": tb_pessoas[i].chr_estado ? htmlDecode(tb_pessoas[i].chr_estado.trim().toLowerCase()): null,
+                                "gps": tb_pessoas[i].chr_gps,
+                                "phone": tb_pessoas[i].chr_telefone,
+                                "mobile": tb_pessoas[i].chr_celular,
+                                "email": tb_pessoas[i].chr_email,
+                                "facebook": tb_pessoas[i].chr_face,
+                                "twitter": tb_pessoas[i].chr_twitter,
+                                "instagram": null
+                            },
+                            "profissional_eleitoral": {
+                                "company": tb_pessoas[i].chr_empresa ? htmlDecode(tb_pessoas[i].chr_empresa.trim().toLowerCase()): null,
+                                "admissionDate": tb_pessoas[i].dt_admissao,
+                                "terminationDate": tb_pessoas[i].dt_demissao,
+                                "positionCompany": tb_pessoas[i].chr_funcao ? htmlDecode(tb_pessoas[i].chr_funcao.trim().toLowerCase()): null,
+                                "workplace": null,
+                                "Sindicalizado": tb_pessoas[i].chr_sindicalizado ? htmlDecode(tb_pessoas[i].chr_sindicalizado.trim().toLowerCase()): null,
+                                "associationNumber": tb_pessoas[i].chr_associacao,
+                                "militante": tb_pessoas[i].chr_militante == '1',
+                                "directorsindication": tb_pessoas[i].chr_indicado ? htmlDecode(tb_pessoas[i].chr_indicado.trim().toLowerCase()): null,
+                                "electoraltitle": tb_pessoas[i].chr_titulo,
+                                "zone": tb_pessoas[i].chr_zona,
+                                "section": tb_pessoas[i].chr_secao,
+                                "county": tb_pessoas[i].chr_municipio ? htmlDecode(tb_pessoas[i].chr_municipio.trim().toLowerCase()): null,
+                                "state": tb_pessoas[i].chr_uf ? htmlDecode(tb_pessoas[i].chr_uf.trim().toLowerCase()): null
+                            },
+                            "notificacoes_anotacoes": {
+                                "correios": tb_pessoas[i].int_notifyCorreios == '1',
+                                "telefone": tb_pessoas[i].int_notifyTelefones == '1',
+                                "sms": tb_pessoas[i].int_notifySMS == '1',
+                                "whatsapp": tb_pessoas[i].int_notifyWhatsapp == '1',
+                                "telegram": false,
+                                "email": tb_pessoas[i].int_notifyEmail == '1',
+                                "score": tb_pessoas[i].int_pontuacao,
+                                "history": tb_pessoas[i].txt_history,
+                                "datacreatehistory": new Date(Date.now())
+                            },
+                            "dataCreate": new Date(Date.now()),
+                            "dataUpdate": new Date(Date.now())
+                        };
+
+                        promises.push(dbo.collection("pessoa").insertOne(item));
+                    }
+                }
+
+                Q.all(promises)
+                    .then(() => {
+                        response.status(status.OK).send(JSON.stringify("Pessoas cadastrada com sucesso"));
+                    });
+            }
+
+        });
+    }
+    catch (e) {
+        console.log(e);
+    }
 }
