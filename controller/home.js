@@ -95,9 +95,8 @@ exports.getCountersHome = (request, response, next) => {
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
         if (erro) {
-
+            db.close();
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
-
         } else {
             const myObjmain = []
             const myObjinside = {
@@ -156,8 +155,7 @@ exports.getCountersHome = (request, response, next) => {
                     response.status(status.OK).send(myObjmain);
                 });
 
-        }
-        db.close();
+        }        
     });
 
 }

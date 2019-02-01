@@ -296,11 +296,8 @@ exports.deleteEmpresa = (request, response, next) => {
 exports.postImportDatabase = async (request, response, next) => {
     try {
         MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
-
             if (erro) {
-
                 response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
-
             } else {
                 /// DataBase
                 var dbo = db.db("baseinit");
@@ -311,7 +308,6 @@ exports.postImportDatabase = async (request, response, next) => {
                 const tb_empresas = require('../dbFile/tb_empresas.json');
 
                 for (var i = 0; i < tb_empresas.length; i++) {
-
                     ///Object para inserção
                     var item = {
                         "name": tb_empresas[i].chr_fantasia ? htmlDecode(tb_empresas[i].chr_fantasia) : null,
@@ -337,78 +333,20 @@ exports.postImportDatabase = async (request, response, next) => {
                         "dataUpdate": new Date(Date.now())
                     }
 
-                    const requestAddress = (`${item.address} ${item.numberAddress}-${item.neighborhood},${item.city}`).replace(' ', '%20');
-
-                    var clientServerOptions = {
-                        uri: encodeURI('https://maps.googleapis.com/maps/api/geocode/json?address=' + requestAddress + '&key=' + require("../conf/config").keyGoogleMaps),
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    };
-
-                    httpRequest(clientServerOptions, (err, resp, body) => {
-                        if (!err) {
-                            body = JSON.parse(body);
-                            if (!body.error_message) {
-                                const data = body && body.results ? _.first(body.results) : null;
-                                let findAddress = _.find(data.address_components, (x) => {
-                                    return _.find(x.types, (y) => {
-                                        return y.indexOf('route') >= 0;
-                                    });
-                                });
-
-                                item.address = findAddress && findAddress.long_name ? findAddress.long_name : item.address;
-
-                                findAddress = _.find(data.address_components, (x) => {
-                                    return _.find(x.types, (y) => {
-                                        return y.indexOf('sublocality_level_1') >= 0;
-                                    });
-                                });
-
-                                item.neighborhood = findAddress && findAddress.long_name ? findAddress.long_name : item.neighborhood;
-
-                                findAddress = _.find(data.address_components, (x) => {
-                                    return _.find(x.types, (y) => {
-                                        return y.indexOf('administrative_area_level_2') >= 0;
-                                    });
-                                });
-
-                                item.city = findAddress && findAddress.long_name ? findAddress.long_name : item.city;
-
-                                findAddress = _.find(data.address_components, (x) => {
-                                    return _.find(x.types, (y) => {
-                                        return y.indexOf('administrative_area_level_1') >= 0;
-                                    });
-                                });
-
-                                item.state = findAddress && findAddress.short_name ? findAddress.short_name : item.state;
-
-                                findAddress = _.find(data.address_components, (x) => {
-                                    return _.find(x.types, (y) => {
-                                        return y.indexOf('postal_code') >= 0;
-                                    });
-                                });
-
-                                item.zipcode = findAddress && findAddress.long_name ? findAddress.long_name : item.zipcode;
-
-                                if (data.geometry && data.geometry.location) {
-                                    item.gps = `${data.geometry.location.lat}, ${data.geometry.location.lng}`;
-                                }
-                            }
-
-                            promises.push(dbo.collection("empresas").insertOne(item));
-                        }
-                    });
-
+                    promises.push(dbo.collection("empresas").insertOne(item)
+                        .then(() => {
+                            return Q.resolve();
+                        }).catch((e) => {
+                            return Q.reject(e);
+                        }));
                 }
-                Q.all(promises)
-                    .then(() => {
-                        //console.log('test');
-                        response.status(status.OK).send(JSON.stringify("Empresas cadastradas com sucesso"));
-                    });
             }
 
+            Q.all(promises)
+                .then(() => {
+                    //console.log('test');
+                    response.status(status.OK).send(JSON.stringify("Empresas cadastradas com sucesso"));
+                });
         });
     }
     catch (e) {

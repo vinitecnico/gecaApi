@@ -299,7 +299,7 @@ exports.postImportDatabase = async (request, response, next) => {
                 for (var i = 0; i < tb_colegios.length; i++) {
 
                     ///Object para inserção
-                    var myobj = {
+                    const item = {
                         "name": htmlDecode(tb_colegios[i].chr_nome).toLowerCase(),
                         "numbervoters": tb_colegios[i].int_eleitores,
                         "electoralzone": tb_colegios[i].int_zona,
@@ -330,8 +330,8 @@ exports.postImportDatabase = async (request, response, next) => {
                     httpRequest(clientServerOptions, (err, resp, body) => {
                         if (!err) {
                             body = JSON.parse(body);
-                            if (!body.error_message) {
-                                const data = body && body.results ? _.first(body.results) : null;
+                            const data = body && body.results ? _.first(body.results) : null;
+                            if (!body.error_message && data && data.address_components && data.address_components.length > 0) {                                
                                 let findAddress = _.find(data.address_components, (x) => {
                                     return _.find(x.types, (y) => {
                                         return y.indexOf('route') >= 0;
@@ -377,7 +377,13 @@ exports.postImportDatabase = async (request, response, next) => {
                                 }
                             }
 
-                            promises.push(dbo.collection("colegios").insertOne(item));
+                            promises.push(
+                                dbo.collection("colegios").insertOne(item)
+                                .then(() => {
+                                    return Q.resolve();
+                                }).catch((e) => {
+                                    return Q.reject(e);
+                                }));
                         }
                     });
 
