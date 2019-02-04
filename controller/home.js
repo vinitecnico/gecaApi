@@ -56,29 +56,20 @@ function getTotalChartsEtnia(db) {
 
                 charts.etnia = _.chain(res)
                     .map((x) => {
-
                         switch (_.lowerCase(x.dados_pessoais.etnia)) {
                             case "parda":
                                 return 'parda';
-                                break;
                             case "negro":
                                 return 'negro';
-                                break;
                             case "latino hispanico":
                                 return 'latino/hispânico';
-                                break;
                             case "asiatico":
                                 return 'asiatico';
-                                break;
                             case "branco":
                                 return 'branco';
-                                break;                                
                             default:
-                                return 'Não definido';
-                                break;
+                                return 'outra';
                         }
-
-                        //return _.lowerCase(x.dados_pessoais.etnia) == 'parda' ? 'parda' : 'no parda';
                     })
                     .countBy()
                     .value();
@@ -155,7 +146,7 @@ exports.getCountersHome = (request, response, next) => {
                     response.status(status.OK).send(myObjmain);
                 });
 
-        }        
+        }
     });
 
 }
