@@ -15,6 +15,7 @@ const controllerMaps = require("../controller/maps");
 const controllerHome = require("../controller/home");
 const controllerEmail = require("../controller/email");
 const controllerCnpjWs = require("../controller/cnpj");
+const controllerGabinete = require('../controller/gabinete');
 
 /// EXPRESS
 const routes = express.Router();
@@ -92,6 +93,12 @@ routes.get('/map', controllerMaps.getAll);
 routes.get('/map/viacep/:id', controllerMaps.getViaCep);
 routes.get('/map/getGoogleMaps/:id', controllerMaps.getGoogleMaps);
 
+///Gabinete
+routes.post('/gabinete', controllerGabinete.postGabinete);
+routes.get('/gabinete', controllerGabinete.getGabinete);
+routes.get('/gabinete/:id', controllerGabinete.getOnlyGabinete);
+routes.put('/gabinete/:id', controllerGabinete.putGabinete);
+routes.delete('/gabinete/:id', controllerGabinete.deleteGabinete);
 
 ///Home
 routes.get('/home', controllerHome.getCountersHome);
