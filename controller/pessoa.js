@@ -194,8 +194,7 @@ exports.postPessoa = (request, response, next) => {
                                 "telegram": request.body.notificacoes_anotacoes.telegram,
                                 "email": request.body.notificacoes_anotacoes.email,
                                 "score": request.body.notificacoes_anotacoes.score,
-                                "history": request.body.notificacoes_anotacoes.history,
-                                "datacreatehistory": new Date(Date.now())
+                                "history": request.body.notificacoes_anotacoes.history
                             },
                             //"userCreate" : request.decoded.name,
                             "dataCreate": new Date(Date.now()),
@@ -440,8 +439,7 @@ exports.postImportDatabase = async (request, response, next) => {
                                 "telegram": false,
                                 "email": tb_pessoas[i].int_notifyEmail == '1',
                                 "score": tb_pessoas[i].int_pontuacao,
-                                "history": tb_pessoas[i].txt_history,
-                                "datacreatehistory": new Date(Date.now())
+                                "history": tb_pessoas[i].txt_history
                             },
                             "dataCreate": new Date(Date.now()),
                             "dataUpdate": new Date(Date.now())
