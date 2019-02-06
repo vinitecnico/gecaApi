@@ -1,4 +1,4 @@
-var MongoClient = require('mongodb').MongoClient;
+const MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
 const ObjectId = require('mongodb').ObjectId;
 const Q = require('q');

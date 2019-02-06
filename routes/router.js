@@ -16,6 +16,7 @@ const controllerHome = require("../controller/home");
 const controllerEmail = require("../controller/email");
 const controllerCnpjWs = require("../controller/cnpj");
 const controllerGabinete = require('../controller/gabinete');
+const controllerDemanda = require('../controller/demanda');
 
 /// EXPRESS
 const routes = express.Router();
@@ -100,6 +101,13 @@ routes.get('/gabinete', controllerGabinete.getGabinete);
 routes.get('/gabinete/:id', controllerGabinete.getOnlyGabinete);
 routes.put('/gabinete/:id', controllerGabinete.putGabinete);
 routes.delete('/gabinete/:id', controllerGabinete.deleteGabinete);
+
+///Demanda
+routes.post('/demanda', controllerDemanda.postDemanda);
+routes.get('/demanda', controllerDemanda.getDemanda);
+routes.get('/demanda/:id', controllerDemanda.getOnlyDemanda);
+routes.put('/demanda/:id', controllerDemanda.putDemanda);
+routes.delete('/demanda/:id', controllerDemanda.deleteDemanda);
 
 ///Home
 routes.get('/home', controllerHome.getCountersHome);
