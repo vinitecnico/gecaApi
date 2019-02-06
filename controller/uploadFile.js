@@ -20,7 +20,7 @@ exports.getFilesList = (request, response, next) => {
 exports.upload = (request, response, next) => {
     dbx.filesUpload({ path: '/texe123.txt', contents: 'Text Content', mode: 'overwrite' })
         .then((result) => {
-            dbx.filesGetPreview({ path: '/image-editing-101040_960_720.jpg'})
+            dbx.sharingcre.sharingCreateSharedLink({ path: '/image-editing-101040_960_720.jpg'})
                 .then((res) => {
                     response.status(status.OK).send(res);
                 });
