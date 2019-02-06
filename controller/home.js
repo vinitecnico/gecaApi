@@ -71,6 +71,7 @@ function getTotalChartsEtnia(db) {
                                 return 'outra';
                         }
                     })
+                    .sortBy()
                     .countBy()
                     .value();
 

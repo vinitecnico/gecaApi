@@ -353,3 +353,149 @@ exports.postImportDatabase = async (request, response, next) => {
         console.log(e);
     }
 }
+
+
+
+
+
+///POST import database
+exports.postReprocessamento = async (request, response, next) => {
+    try {
+        MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
+            if (erro) {
+                response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+            } else {
+                var dbo = db.db("baseinit");
+                var promises = [];
+                dbo.collection("empresas").find({ gps: null }).toArray(function (err, res) {
+                    if (err) {
+                        response.status(status.BAD_REQUEST).send(JSON.stringify(err));
+                    }
+                    else {
+                        if (res.length != 0) {
+                            for (var i = 0; i < res.length; i++) {
+
+                                const requestAddress = (`${res[i].address}-${res[i].neighborhood},${res[i].city}`);
+
+                                var clientServerOptions = {
+                                    uri: encodeURI('https://maps.googleapis.com/maps/api/geocode/json?address=' + requestAddress + '&key=' + require("../conf/config").keyGoogleMaps),
+                                    method: 'GET',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    }
+                                };
+
+                                httpRequest(clientServerOptions, (err, resp, body) => {
+                                    if (!err) {
+                                        body = JSON.parse(body);
+                                        let item = null;
+                                        if (!body.error_message) {
+                                            const data = body && body.results ? _.first(body.results) : null;
+
+                                            let findAddress = _.find(data.address_components, (x) => {
+                                                return _.find(x.types, (y) => {
+                                                    return y.indexOf('postal_code') >= 0;
+                                                });
+                                            });
+
+                                            const zipcode = findAddress && findAddress.long_name ? findAddress.long_name : null;
+
+                                            if (!zipcode) {
+                                                return Q.resolve();
+                                            }
+
+                                            item = _.find(res, (x) => {
+                                                return x.zipcode == zipcode.replace('-', '');
+                                            });
+
+                                            if (!item) {
+                                                return Q.resolve();
+                                            }
+
+                                            findAddress = _.find(data.address_components, (x) => {
+                                                return _.find(x.types, (y) => {
+                                                    return y.indexOf('route') >= 0;
+                                                });
+                                            });
+
+                                            item.address = findAddress && findAddress.long_name ? findAddress.long_name : item.address;
+
+                                            findAddress = _.find(data.address_components, (x) => {
+                                                return _.find(x.types, (y) => {
+                                                    return y.indexOf('sublocality_level_1') >= 0;
+                                                });
+                                            });
+
+                                            item.neighborhood = findAddress && findAddress.long_name ? findAddress.long_name : item.neighborhood;
+
+                                            findAddress = _.find(data.address_components, (x) => {
+                                                return _.find(x.types, (y) => {
+                                                    return y.indexOf('administrative_area_level_2') >= 0;
+                                                });
+                                            });
+
+                                            item.city = findAddress && findAddress.long_name ? findAddress.long_name : item.city;
+
+                                            findAddress = _.find(data.address_components, (x) => {
+                                                return _.find(x.types, (y) => {
+                                                    return y.indexOf('administrative_area_level_1') >= 0;
+                                                });
+                                            });
+
+                                            item.state = findAddress && findAddress.short_name ? findAddress.short_name : item.state;
+
+                                            if (data.geometry && data.geometry.location) {
+                                                item.gps = `${data.geometry.location.lat}, ${data.geometry.location.lng}`;
+                                            }
+                                        }
+
+                                        const newvalues = {
+                                            $set: {
+                                                "name": item.name,
+                                                "cnpj": item.cnpj,
+                                                "segment": item.segment,
+                                                "activity": item.activity,
+                                                "zipcode": item.zipcode,
+                                                "address": item.address,
+                                                "numberAddress": item.numberAddress,
+                                                "complement": item.complement,
+                                                "neighborhood": item.neighborhood,
+                                                "city": item.city,
+                                                "state": item.state,
+                                                "gps": item.gps,
+                                                "mainContact": item.mainContact,
+                                                "phone": item.phone,
+                                                "mobile": item.mobile,
+                                                "email": item.email,
+                                                "facebook": item.facebook,
+                                                "twitter": item.twitter,
+                                                "instagram": item.instagram,
+                                                "userUpdate": item.name,
+                                                "dataUpdate": new Date(Date.now())
+                                            }
+                                        }
+
+                                        promises.push(dbo.collection("empresas")
+                                            .updateOne({ _id: item._id }, newvalues)
+                                            .then(() => {
+                                                return Q.resolve();
+                                            }).catch((e) => {
+                                                return Q.reject(e);
+                                            }));
+                                    }
+                                });
+                            }
+                            Q.all(promises)
+                                .then(() => {
+                                    response.status(status.OK).send(JSON.stringify("Empresas cadastradas com sucesso"));
+                                });
+                        }
+                    }
+                });
+            }
+        });
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
