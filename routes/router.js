@@ -17,6 +17,7 @@ const controllerEmail = require("../controller/email");
 const controllerCnpjWs = require("../controller/cnpj");
 const controllerGabinete = require('../controller/gabinete');
 const controllerDemanda = require('../controller/demanda');
+const controllerUploadFile = require('../controller/uploadFile');
 
 /// EXPRESS
 const routes = express.Router();
@@ -117,5 +118,10 @@ routes.post('/email', controllerEmail.sendEmail);
 
 ///CNPJ
 routes.get('/cnpjws/:cnpj', controllerCnpjWs.getCNPJWs);
+
+///fileUpload
+routes.get('/fileUpload', controllerUploadFile.getFilesList);
+routes.get('/fileUpload/upload', controllerUploadFile.upload);
+routes.get('/fileUpload/download', controllerUploadFile.download);
 
 module.exports = routes
