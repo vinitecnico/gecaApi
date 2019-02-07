@@ -2,6 +2,7 @@ const status = require('http-status');
 const FileReader = require('filereader');
 require('isomorphic-fetch'); // or another library of choice.
 var cors = require('cors');
+const multer = require('multer');
 const Dropbox = require('dropbox').Dropbox;
 const dbx = new Dropbox({ accessToken: require("../conf/config").keyDropbox });
 
@@ -16,20 +17,46 @@ exports.getFilesList = (request, response, next) => {
         });
 };
 
-///GET upload
-exports.upload = (request, response, next) => {
-    dbx.filesUpload({ path: '/texe123.txt', contents: 'Text Content', mode: 'overwrite' })
-        .then((result) => {
-            dbx.sharingCreateSharedLink({ path: '/image-editing-101040_960_720.jpg'})
-                .then((res) => {
-                    res.url = res.url.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
-                    res.url = res.url.replace('?dl=0', '');
-                    response.status(status.OK).send(res);
+// const storage = multer.diskStorage({ //multers disk storage settings
+//     destination: function (req, file, cb) {
+//         cb(null, './uploads/');
+//     },
+//     filename: function (req, file, cb) {
+//         const datetimestamp = Date.now();
+//         cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length - 1]);
+//     }
+// });
+
+// const upload = multer(
+//     { //multer settings
+//         storage: storage
+//     }).single('file');
+
+var storage = multer.memoryStorage({});
+var upload = multer({ storage: storage }).single('file');
+
+///Post upload
+exports.postUpload = (request, response, next) => {
+    upload(request, response, function (err) {
+        console.log(request.file);
+        if (err) {
+            res.json({ error_code: 1, err_desc: err });
+            return;
+        } else {
+            dbx.filesUpload({ path: `/${request.file.originalname}`, contents: request.file.buffer, mode: 'overwrite' })
+                .then((result) => {
+                    dbx.sharingCreateSharedLink({ path: `/${request.file.originalname}` })
+                        .then((resDpx) => {
+                            resDpx.url = resDpx.url.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+                            resDpx.url = resDpx.url.replace('?dl=0', '');
+                            response.status(status.OK).send(resDpx);
+                        });
+                })
+                .catch((error) => {
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(error));
                 });
-        })
-        .catch((error) => {
-            response.status(status.BAD_REQUEST).send(JSON.stringify(error));
-        });
+        }
+    });
 };
 
 ///GET upload
@@ -42,6 +69,17 @@ exports.download = (request, response, next) => {
                 response.status(status.OK).send(reader.result);
             });
             reader.readAsText(blob);
+        })
+        .catch((error) => {
+            response.status(status.BAD_REQUEST).send(JSON.stringify(error));
+        });
+};
+
+///GET remove
+exports.remove = (request, response, next) => {
+    dbx.filesDelete({ path: '/texe123.txt' })
+        .then((result) => {
+            response.status(status.OK).send(result);
         })
         .catch((error) => {
             response.status(status.BAD_REQUEST).send(JSON.stringify(error));

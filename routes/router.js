@@ -120,8 +120,9 @@ routes.post('/email', controllerEmail.sendEmail);
 routes.get('/cnpjws/:cnpj', controllerCnpjWs.getCNPJWs);
 
 ///fileUpload
-routes.get('/fileUpload', controllerUploadFile.getFilesList);
-routes.get('/fileUpload/upload', controllerUploadFile.upload);
-routes.get('/fileUpload/download', controllerUploadFile.download);
+routes.get('/dropbox', controllerUploadFile.getFilesList);
+routes.post('/dropbox/upload', controllerUploadFile.postUpload);
+routes.get('/dropbox/download', controllerUploadFile.download);
+routes.post('/dropbox/remove', controllerUploadFile.remove);
 
 module.exports = routes

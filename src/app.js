@@ -22,9 +22,7 @@ app.use(express.json())
 //TODO: Criar a rota middleware para poder verificar e autenticar o token
 app.use(function (req, res, next) {
 
-    if (req.originalUrl != "/api/login" && req.originalUrl.indexOf('importdatabase') < 0 &&
-        req.originalUrl.indexOf('fileUpload') < 0) {
-        //var token = req.headers['x-access-token'];
+    if (req.originalUrl != "/api/login" && req.originalUrl.indexOf('importdatabase') < 0) {
         var tokens = req.headers['authorization'].replace('Bearer ', '')
 
         if (tokens) {
