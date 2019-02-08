@@ -310,9 +310,8 @@ exports.putPessoa = (request, response, next) => {
                 }
 
                 const promises = [];
-                if (request.body.file && request.body.file.fileName) {
-                    promises.push(deleteFile(db, request.params.id, request.body.file.fileName));
-                }
+
+                promises.push(deleteFile(db, request.params.id, request.body.file.fileName));
 
                 promises.push(db.db("baseinit").collection("pessoa")
                     .updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
