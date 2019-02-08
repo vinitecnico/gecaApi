@@ -17,28 +17,12 @@ exports.getFilesList = (request, response, next) => {
         });
 };
 
-// const storage = multer.diskStorage({ //multers disk storage settings
-//     destination: function (req, file, cb) {
-//         cb(null, './uploads/');
-//     },
-//     filename: function (req, file, cb) {
-//         const datetimestamp = Date.now();
-//         cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length - 1]);
-//     }
-// });
-
-// const upload = multer(
-//     { //multer settings
-//         storage: storage
-//     }).single('file');
-
 var storage = multer.memoryStorage({});
 var upload = multer({ storage: storage }).single('file');
 
 ///Post upload
 exports.postUpload = (request, response, next) => {
     upload(request, response, function (err) {
-        console.log(request.file);
         if (err) {
             res.json({ error_code: 1, err_desc: err });
             return;
@@ -49,7 +33,11 @@ exports.postUpload = (request, response, next) => {
                         .then((resDpx) => {
                             resDpx.url = resDpx.url.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
                             resDpx.url = resDpx.url.replace('?dl=0', '');
-                            response.status(status.OK).send(resDpx);
+                            const data = {
+                                url: resDpx.url,
+                                fileName: request.file.originalname
+                            };
+                            response.status(status.OK).send(data);
                         });
                 })
                 .catch((error) => {
