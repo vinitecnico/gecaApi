@@ -3,6 +3,9 @@ const status = require('http-status');
 const ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
 const _ = require("lodash");
+require('isomorphic-fetch'); // or another library of choice.
+const Dropbox = require('dropbox').Dropbox;
+const dbx = new Dropbox({ accessToken: require("../conf/config").keyDropbox });
 
 
 ///GET gabinete
@@ -114,6 +117,8 @@ exports.postGabinete = (request, response, next) => {
                             "secretary": request.body.secretary,
                             "neighborhood": request.body.neighborhood,
                             "situation": request.body.situation,
+                            "url": request.body.url,
+                            "fileName": request.body.fileName,
                             "userCreate": request.decoded.name,
                             "dataCreate": new Date(Date.now()),
                             "userUpdate": request.decoded.name,
@@ -153,30 +158,68 @@ exports.putGabinete = (request, response, next) => {
                     "secretary": request.body.secretary,
                     "neighborhood": request.body.neighborhood,
                     "situation": request.body.situation,
+                    "url": request.body.url,
+                    "fileName": request.body.fileName,
                     "userUpdate": request.decoded.name,
                     "dataUpdate": new Date(Date.now())
                 }
             }
 
-            db.db("baseinit").collection("gabinete").updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
-                if (err) {
-                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                }
-                else {
-                    if (res.modifiedCount != 0) {
-                        response.status(status.CREATED).send(JSON.stringify("Gabinete atualizado com sucesso."));
+            const promises = [];
 
+            promises.push(deleteFile(db, request.params.id, request.body.fileName));
+
+            promises.push(db.db("baseinit").collection("gabinete")
+                .updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
+                    if (err) {
+                        return Q.reject(err);
                     } else {
-
-                        response.status(status.NOT_FOUND).send(JSON.stringify("Gabinete não encontrado"));
-
+                        if (res.modifiedCount != 0) {
+                            return Q.resolve(true);
+                        } else {
+                            return Q.reject('Gabinete nao encontrado');
+                        }
                     }
-                }
-                db.close();
-            });
+                }));
+
+            Q.all(promises)
+                .then(() => {
+                    db.close();
+                    response.status(status.CREATED)
+                        .send(JSON.stringify("Gabinete atualizado com sucesso."));
+                })
+                .catch((error) => {
+                    response.status(status.BAD_REQUEST).send(JSON.stringify(error));
+                });
         }
     });
+}
 
+function deleteFile(db, id, fileName) {
+    const defer = Q.defer();
+    db.db('baseinit')
+        .collection('gabinete')
+        .find({ _id: ObjectId(id) })
+        .toArray(function (err, res) {
+            if (err) {
+                defer.reject(JSON.stringify(err));
+            } else {
+                const data = _.first(res);
+                if (data && (!fileName && data && data.fileName) ||
+                    (data.file && data.fileName && data.fileName != fileName)) {
+                    dbx.filesDelete({ path: `/${data.fileName}` })
+                        .then((result) => {
+                            defer.resolve(true);
+                        })
+                        .catch((error) => {
+                            defer.resolve(false);
+                        });
+                } else {
+                    defer.resolve(true);
+                }
+            }
+        });
+    return defer.promise;
 }
 
 ///DELETE Gabinete
@@ -185,20 +228,32 @@ exports.deleteGabinete = (request, response, next) => {
         if (erro) {
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
         } else {
-            /// DataBase            
-            db.db("baseinit").collection("gabinete").deleteOne({ _id: ObjectId(request.params.id) }, function (err, res) {
-                if (err) {
-                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-                }
-                else {
-                    if (res.deletedCount != 0) {
+            const promises = [];
+                promises.push(deleteFile(db, request.params.id, null));
+
+                promises.push(db.db("baseinit")
+                    .collection("gabinete")
+                    .deleteOne({ _id: ObjectId(request.params.id) },
+                        function (err, res) {
+                            if (err) {
+                                return Q.reject(err);
+                            } else {
+                                if (res.deletedCount != 0) {
+                                    return Q.resolve(true);
+                                } else {
+                                    return Q.reject('Gabinete nao encontrado');
+                                }
+                            }
+                        }));
+
+                Q.all(promises)
+                    .then(() => {
+                        db.close();
                         response.status(status.GONE).send(JSON.stringify("Gabinete deletado com sucesso."));
-                    } else {
-                        response.status(status.NOT_FOUND).send(JSON.stringify("Gabinete não encontrado."));
-                    }
-                }
-                db.close();
-            });
+                    })
+                    .catch((error) => {
+                        response.status(status.BAD_REQUEST).send(JSON.stringify(error));
+                    });
         }
     });
 }

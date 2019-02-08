@@ -321,7 +321,7 @@ exports.putPessoa = (request, response, next) => {
                             if (res.modifiedCount != 0) {
                                 return Q.resolve(true);
                             } else {
-                                return Q.reject('Usuario nao encontrado');
+                                return Q.reject('Pessoa nao encontrado');
                             }
                         }
                     }));
@@ -330,7 +330,7 @@ exports.putPessoa = (request, response, next) => {
                     .then(() => {
                         db.close();
                         response.status(status.CREATED)
-                            .send(JSON.stringify("Usuario atualizado com sucesso."));
+                            .send(JSON.stringify("Pessoa atualizado com sucesso."));
                     })
                     .catch((error) => {
                         response.status(status.BAD_REQUEST).send(JSON.stringify(error));
@@ -377,13 +377,6 @@ exports.deletePessoa = (request, response, next) => {
                 /// DataBase
                 const promises = [];
                 promises.push(deleteFile(db, request.params.id, null));
-                promises.push(db.db("baseinit").collection("pessoa")
-                    .deleteOne({ _id: ObjectId(request.params.id) })
-                    .then(() => {
-                        return Q.resolve(data);
-                    }).catch((error) => {
-                        Q.reject(error);
-                    }));
 
                 promises.push(db.db("baseinit")
                     .collection("pessoa")
@@ -395,7 +388,7 @@ exports.deletePessoa = (request, response, next) => {
                                 if (res.deletedCount != 0) {
                                     return Q.resolve(true);
                                 } else {
-                                    return Q.reject('Usuario nao encontrado');
+                                    return Q.reject('Pessoa nao encontrado');
                                 }
                             }
                         }));
@@ -403,7 +396,7 @@ exports.deletePessoa = (request, response, next) => {
                 Q.all(promises)
                     .then(() => {
                         db.close();
-                        response.status(status.GONE).send(JSON.stringify("Usuario deletado com sucesso."));
+                        response.status(status.GONE).send(JSON.stringify("Pessoa deletado com sucesso."));
                     })
                     .catch((error) => {
                         response.status(status.BAD_REQUEST).send(JSON.stringify(error));
