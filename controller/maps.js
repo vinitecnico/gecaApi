@@ -85,6 +85,8 @@ function getMap(db, collectionName, ignorObject, findObject) {
     const defer = Q.defer();
     db.db("baseinit").collection(collectionName)
         .find(findObject)
+        .skip((100 * 1) - 100)
+        .limit(100)
         .project(ignorObject)
         .toArray(function (err, res) {
             db.close();
@@ -217,7 +219,8 @@ exports.getAll = (request, response, next) => {
                         return Q.resolve(data);
                     })
                     .catch((e) => {
-                        return Q.reject(e);
+                        // return Q.reject(e);
+                        return Q.resolve();
                     }));
             }
 

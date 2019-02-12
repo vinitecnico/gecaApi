@@ -3,6 +3,8 @@ const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
 const _ = require("lodash");
+const httpRequest = require('request');
+const htmlDecode = require('js-htmlencode').htmlDecode;
 
 ///GET Empresa
 exports.getEmpresa = (request, response, next) => {
@@ -218,7 +220,7 @@ exports.putEmpresa = (request, response, next) => {
                     "facebook": request.body.facebook,
                     "twitter": request.body.twitter,
                     "instagram": request.body.instagram,
-                    "userUpdate" : request.decoded.name,
+                    "userUpdate": request.decoded.name,
                     "dataUpdate": new Date(Date.now())
                 }
             }
@@ -294,11 +296,8 @@ exports.deleteEmpresa = (request, response, next) => {
 exports.postImportDatabase = async (request, response, next) => {
     try {
         MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
-
             if (erro) {
-
                 response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
-
             } else {
                 /// DataBase
                 var dbo = db.db("baseinit");
@@ -309,22 +308,21 @@ exports.postImportDatabase = async (request, response, next) => {
                 const tb_empresas = require('../dbFile/tb_empresas.json');
 
                 for (var i = 0; i < tb_empresas.length; i++) {
-
                     ///Object para inserção
-                    var myobj = {
-                        "name": tb_empresas[i].chr_fantasia ? d.write(tb_empresas[i].chr_fantasia) : null,
+                    var item = {
+                        "name": tb_empresas[i].chr_fantasia ? htmlDecode(tb_empresas[i].chr_fantasia) : null,
                         "cnpj": tb_empresas[i].chr_cnpj.replace('.', '').replace('\/', '').replace('-', '').replace('.', ''),
-                        "segment": tb_empresas[i].chr_segmento ? d.write(tb_empresas[i].chr_segmento) : null,
-                        "activity": tb_empresas[i].chr_atividade ? d.write(tb_empresas[i].chr_atividade) : null,
-                        "zipcode": tb_empresas[i].chr_cep ? d.write(tb_empresas[i].chr_cep.replace('-', '')) : null,
-                        "address": tb_empresas[i].chr_rua ? d.write(tb_empresas[i].chr_rua) : null,
+                        "segment": tb_empresas[i].chr_segmento ? htmlDecode(tb_empresas[i].chr_segmento) : null,
+                        "activity": tb_empresas[i].chr_atividade ? htmlDecode(tb_empresas[i].chr_atividade) : null,
+                        "zipcode": tb_empresas[i].chr_cep ? htmlDecode(tb_empresas[i].chr_cep.replace('-', '')) : null,
+                        "address": tb_empresas[i].chr_rua ? htmlDecode(tb_empresas[i].chr_rua) : null,
                         "numberAddress": tb_empresas[i].chr_numero,
-                        "complement": tb_empresas[i].chr_complemento ? d.write(tb_empresas[i].chr_complemento) : null,
-                        "neighborhood": tb_empresas[i].chr_bairro ? d.write(tb_empresas[i].chr_bairro) : null,
-                        "city": tb_empresas[i].chr_cidade ? d.write(tb_empresas[i].chr_cidade) : null,
+                        "complement": tb_empresas[i].chr_complemento ? htmlDecode(tb_empresas[i].chr_complemento) : null,
+                        "neighborhood": tb_empresas[i].chr_bairro ? htmlDecode(tb_empresas[i].chr_bairro) : null,
+                        "city": tb_empresas[i].chr_cidade ? htmlDecode(tb_empresas[i].chr_cidade) : null,
                         "state": null,
                         "gps": null,
-                        "mainContact": tb_empresas[i].chr_cidade ? d.write(tb_empresas[i].chr_contato) : null,
+                        "mainContact": tb_empresas[i].chr_cidade ? htmlDecode(tb_empresas[i].chr_contato) : null,
                         "phone": tb_empresas[i].chr_telefone,
                         "mobile": tb_empresas[i].chr_celular,
                         "email": tb_empresas[i].chr_email,
@@ -335,16 +333,166 @@ exports.postImportDatabase = async (request, response, next) => {
                         "dataUpdate": new Date(Date.now())
                     }
 
-                    promises.push(dbo.collection("empresas").insertOne(myobj));
-
+                    promises.push(dbo.collection("empresas").insertOne(item)
+                        .then(() => {
+                            return Q.resolve();
+                        }).catch((e) => {
+                            return Q.reject(e);
+                        }));
                 }
-                Q.all(promises)
-                    .then(() => {
-                        //console.log('test');
-                        response.status(status.OK).send(JSON.stringify("Empresas cadastradas com sucesso"));
-                    });
             }
 
+            Q.all(promises)
+                .then(() => {
+                    //console.log('test');
+                    response.status(status.OK).send(JSON.stringify("Empresas cadastradas com sucesso"));
+                });
+        });
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
+
+
+
+
+
+///POST import database
+exports.postReprocessamento = async (request, response, next) => {
+    try {
+        MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
+            if (erro) {
+                response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+            } else {
+                var dbo = db.db("baseinit");
+                var promises = [];
+                dbo.collection("empresas").find({ gps: null }).toArray(function (err, res) {
+                    if (err) {
+                        response.status(status.BAD_REQUEST).send(JSON.stringify(err));
+                    }
+                    else {
+                        if (res.length != 0) {
+                            for (var i = 0; i < res.length; i++) {
+
+                                const requestAddress = (`${res[i].address}-${res[i].neighborhood},${res[i].city}`);
+
+                                var clientServerOptions = {
+                                    uri: encodeURI('https://maps.googleapis.com/maps/api/geocode/json?address=' + requestAddress + '&key=' + require("../conf/config").keyGoogleMaps),
+                                    method: 'GET',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    }
+                                };
+
+                                httpRequest(clientServerOptions, (err, resp, body) => {
+                                    if (!err) {
+                                        body = JSON.parse(body);
+                                        let item = null;
+                                        if (!body.error_message) {
+                                            const data = body && body.results ? _.first(body.results) : null;
+
+                                            let findAddress = _.find(data.address_components, (x) => {
+                                                return _.find(x.types, (y) => {
+                                                    return y.indexOf('postal_code') >= 0;
+                                                });
+                                            });
+
+                                            const zipcode = findAddress && findAddress.long_name ? findAddress.long_name : null;
+
+                                            if (!zipcode) {
+                                                return Q.resolve();
+                                            }
+
+                                            item = _.find(res, (x) => {
+                                                return x.zipcode == zipcode.replace('-', '');
+                                            });
+
+                                            if (!item) {
+                                                return Q.resolve();
+                                            }
+
+                                            findAddress = _.find(data.address_components, (x) => {
+                                                return _.find(x.types, (y) => {
+                                                    return y.indexOf('route') >= 0;
+                                                });
+                                            });
+
+                                            item.address = findAddress && findAddress.long_name ? findAddress.long_name : item.address;
+
+                                            findAddress = _.find(data.address_components, (x) => {
+                                                return _.find(x.types, (y) => {
+                                                    return y.indexOf('sublocality_level_1') >= 0;
+                                                });
+                                            });
+
+                                            item.neighborhood = findAddress && findAddress.long_name ? findAddress.long_name : item.neighborhood;
+
+                                            findAddress = _.find(data.address_components, (x) => {
+                                                return _.find(x.types, (y) => {
+                                                    return y.indexOf('administrative_area_level_2') >= 0;
+                                                });
+                                            });
+
+                                            item.city = findAddress && findAddress.long_name ? findAddress.long_name : item.city;
+
+                                            findAddress = _.find(data.address_components, (x) => {
+                                                return _.find(x.types, (y) => {
+                                                    return y.indexOf('administrative_area_level_1') >= 0;
+                                                });
+                                            });
+
+                                            item.state = findAddress && findAddress.short_name ? findAddress.short_name : item.state;
+
+                                            if (data.geometry && data.geometry.location) {
+                                                item.gps = `${data.geometry.location.lat}, ${data.geometry.location.lng}`;
+                                            }
+                                        }
+
+                                        const newvalues = {
+                                            $set: {
+                                                "name": item.name,
+                                                "cnpj": item.cnpj,
+                                                "segment": item.segment,
+                                                "activity": item.activity,
+                                                "zipcode": item.zipcode,
+                                                "address": item.address,
+                                                "numberAddress": item.numberAddress,
+                                                "complement": item.complement,
+                                                "neighborhood": item.neighborhood,
+                                                "city": item.city,
+                                                "state": item.state,
+                                                "gps": item.gps,
+                                                "mainContact": item.mainContact,
+                                                "phone": item.phone,
+                                                "mobile": item.mobile,
+                                                "email": item.email,
+                                                "facebook": item.facebook,
+                                                "twitter": item.twitter,
+                                                "instagram": item.instagram,
+                                                "userUpdate": item.name,
+                                                "dataUpdate": new Date(Date.now())
+                                            }
+                                        }
+
+                                        promises.push(dbo.collection("empresas")
+                                            .updateOne({ _id: item._id }, newvalues)
+                                            .then(() => {
+                                                return Q.resolve();
+                                            }).catch((e) => {
+                                                return Q.reject(e);
+                                            }));
+                                    }
+                                });
+                            }
+                            Q.all(promises)
+                                .then(() => {
+                                    response.status(status.OK).send(JSON.stringify("Empresas cadastradas com sucesso"));
+                                });
+                        }
+                    }
+                });
+            }
         });
     }
     catch (e) {

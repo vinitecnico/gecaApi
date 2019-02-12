@@ -12,10 +12,12 @@ const controllerFeira = require("../controller/feira");
 const controllerEmpresa = require("../controller/empresas");
 const controllerColegio = require("../controller/colegio");
 const controllerMaps = require("../controller/maps");
-const controllerGabinete = require('../controller/gabinete');
 const controllerHome = require("../controller/home");
 const controllerEmail = require("../controller/email");
 const controllerCnpjWs = require("../controller/cnpj");
+const controllerGabinete = require('../controller/gabinete');
+const controllerDemanda = require('../controller/demanda');
+const controllerUploadFile = require('../controller/uploadFile');
 
 /// EXPRESS
 const routes = express.Router();
@@ -58,6 +60,7 @@ routes.get('/pessoa', controllerPessoa.getPessoa);
 routes.get('/pessoa/:id', controllerPessoa.getOnlyPessoa);
 routes.put('/pessoa/:id', controllerPessoa.putPessoa);
 routes.delete('/pessoa/:id', controllerPessoa.deletePessoa);
+routes.post('/pessoa/importdatabase', controllerPessoa.postImportDatabase);
 
 ///Feira
 routes.post('/feira', controllerFeira.postFeira);
@@ -74,6 +77,7 @@ routes.get('/empresa/:id', controllerEmpresa.getOnlyEmpresa);
 routes.put('/empresa/:id', controllerEmpresa.putEmpresa);
 routes.delete('/empresa/:id', controllerEmpresa.deleteEmpresa);
 routes.post('/empresa/importdatabase', controllerEmpresa.postImportDatabase);
+routes.post('/empresa/importdatabasereprocessamento', controllerEmpresa.postReprocessamento);
 
 ///Colegio
 routes.post('/colegio', controllerColegio.postColegio);
@@ -99,6 +103,13 @@ routes.get('/gabinete/:id', controllerGabinete.getOnlyGabinete);
 routes.put('/gabinete/:id', controllerGabinete.putGabinete);
 routes.delete('/gabinete/:id', controllerGabinete.deleteGabinete);
 
+///Demanda
+routes.post('/demanda', controllerDemanda.postDemanda);
+routes.get('/demanda', controllerDemanda.getDemanda);
+routes.get('/demanda/:id', controllerDemanda.getOnlyDemanda);
+routes.put('/demanda/:id', controllerDemanda.putDemanda);
+routes.delete('/demanda/:id', controllerDemanda.deleteDemanda);
+
 ///Home
 routes.get('/home', controllerHome.getCountersHome);
 
@@ -107,5 +118,11 @@ routes.post('/email', controllerEmail.sendEmail);
 
 ///CNPJ
 routes.get('/cnpjws/:cnpj', controllerCnpjWs.getCNPJWs);
+
+///fileUpload
+routes.get('/dropbox', controllerUploadFile.getFilesList);
+routes.post('/dropbox/upload', controllerUploadFile.postUpload);
+routes.get('/dropbox/download', controllerUploadFile.download);
+routes.post('/dropbox/remove', controllerUploadFile.remove);
 
 module.exports = routes

@@ -56,30 +56,22 @@ function getTotalChartsEtnia(db) {
 
                 charts.etnia = _.chain(res)
                     .map((x) => {
-
                         switch (_.lowerCase(x.dados_pessoais.etnia)) {
                             case "parda":
                                 return 'parda';
-                                break;
                             case "negro":
                                 return 'negro';
-                                break;
                             case "latino hispanico":
                                 return 'latino/hispânico';
-                                break;
                             case "asiatico":
                                 return 'asiatico';
-                                break;
                             case "branco":
                                 return 'branco';
-                                break;                                
                             default:
-                                return 'Não definido';
-                                break;
+                                return 'outra';
                         }
-
-                        //return _.lowerCase(x.dados_pessoais.etnia) == 'parda' ? 'parda' : 'no parda';
                     })
+                    .sortBy()
                     .countBy()
                     .value();
 
@@ -95,9 +87,8 @@ exports.getCountersHome = (request, response, next) => {
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
         if (erro) {
-
+            db.close();
             response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
-
         } else {
             const myObjmain = []
             const myObjinside = {
@@ -157,7 +148,6 @@ exports.getCountersHome = (request, response, next) => {
                 });
 
         }
-        db.close();
     });
 
 }

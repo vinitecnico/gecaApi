@@ -3,7 +3,8 @@ const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
 const _ = require("lodash");
-
+const httpRequest = require('request');
+const htmlDecode = require('js-htmlencode').htmlDecode;
 
 ///GET Colegio
 exports.getColegio = (request, response, next) => {
@@ -298,25 +299,93 @@ exports.postImportDatabase = async (request, response, next) => {
                 for (var i = 0; i < tb_colegios.length; i++) {
 
                     ///Object para inserção
-                    var myobj = {
-                        "name": d.write(tb_colegios[i].chr_nome).toLowerCase(),
+                    const item = {
+                        "name": htmlDecode(tb_colegios[i].chr_nome).toLowerCase(),
                         "numbervoters": tb_colegios[i].int_eleitores,
                         "electoralzone": tb_colegios[i].int_zona,
                         "section": tb_colegios[i].chr_secao,
                         "specialsection": tb_colegios[i].chr_secaoX,
-                        "zipcode": tb_colegios[i].chr_cep ? d.write(tb_colegios[i].chr_cep.replace('-', '')) : null,
-                        "address": tb_colegios[i].chr_rua ? d.write(tb_colegios[i].chr_rua).toLowerCase() : null,
+                        "zipcode": tb_colegios[i].chr_cep ? htmlDecode(tb_colegios[i].chr_cep.replace('-', '')) : null,
+                        "address": tb_colegios[i].chr_rua ? htmlDecode(tb_colegios[i].chr_rua).toLowerCase() : null,
                         "numberAddress": tb_colegios[i].chr_numero,
-                        "complement": tb_colegios[i].chr_complemento ? d.write(tb_colegios[i].chr_complemento).toLowerCase() : null,
+                        "complement": tb_colegios[i].chr_complemento ? htmlDecode(tb_colegios[i].chr_complemento).toLowerCase() : null,
                         "neighborhood": tb_colegios[i].chr_bairro ? tb_colegios[i].chr_bairro.toLowerCase() : null,
-                        "city": tb_colegios[i].chr_cidade ? d.write(tb_colegios[i].chr_cidade).toLowerCase() : null,
+                        "city": tb_colegios[i].chr_cidade ? htmlDecode(tb_colegios[i].chr_cidade).toLowerCase() : null,
                         "state": tb_colegios[i].chr_estado || 'SP',
                         "gps": tb_colegios[i].chr_gps,
                         "datacreate": new Date(Date.now()),
                         "dataUpdate": new Date(Date.now())
                     }
 
-                    promises.push(dbo.collection("colegios").insertOne(myobj));
+                    const requestAddress = (`${item.address} ${item.numberAddress}-${item.neighborhood},${item.city}`).replace(' ', '%20');
+
+                    var clientServerOptions = {
+                        uri: encodeURI('https://maps.googleapis.com/maps/api/geocode/json?address=' + requestAddress + '&key=' + require("../conf/config").keyGoogleMaps),
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+
+                    httpRequest(clientServerOptions, (err, resp, body) => {
+                        if (!err) {
+                            body = JSON.parse(body);
+                            const data = body && body.results ? _.first(body.results) : null;
+                            if (!body.error_message && data && data.address_components && data.address_components.length > 0) {                                
+                                let findAddress = _.find(data.address_components, (x) => {
+                                    return _.find(x.types, (y) => {
+                                        return y.indexOf('route') >= 0;
+                                    });
+                                });
+
+                                item.address = findAddress && findAddress.long_name ? findAddress.long_name : item.address;
+
+                                findAddress = _.find(data.address_components, (x) => {
+                                    return _.find(x.types, (y) => {
+                                        return y.indexOf('sublocality_level_1') >= 0;
+                                    });
+                                });
+
+                                item.neighborhood = findAddress && findAddress.long_name ? findAddress.long_name : item.neighborhood;
+
+                                findAddress = _.find(data.address_components, (x) => {
+                                    return _.find(x.types, (y) => {
+                                        return y.indexOf('administrative_area_level_2') >= 0;
+                                    });
+                                });
+
+                                item.city = findAddress && findAddress.long_name ? findAddress.long_name : item.city;
+
+                                findAddress = _.find(data.address_components, (x) => {
+                                    return _.find(x.types, (y) => {
+                                        return y.indexOf('administrative_area_level_1') >= 0;
+                                    });
+                                });
+
+                                item.state = findAddress && findAddress.short_name ? findAddress.short_name : item.state;
+
+                                findAddress = _.find(data.address_components, (x) => {
+                                    return _.find(x.types, (y) => {
+                                        return y.indexOf('postal_code') >= 0;
+                                    });
+                                });
+
+                                item.zipcode = findAddress && findAddress.long_name ? findAddress.long_name : item.zipcode;
+
+                                if (data.geometry && data.geometry.location) {
+                                    item.gps = `${data.geometry.location.lat}, ${data.geometry.location.lng}`;
+                                }
+                            }
+
+                            promises.push(
+                                dbo.collection("colegios").insertOne(item)
+                                .then(() => {
+                                    return Q.resolve();
+                                }).catch((e) => {
+                                    return Q.reject(e);
+                                }));
+                        }
+                    });
 
                 }
                 Q.all(promises)

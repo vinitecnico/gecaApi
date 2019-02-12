@@ -22,9 +22,8 @@ app.use(express.json())
 //TODO: Criar a rota middleware para poder verificar e autenticar o token
 app.use(function (req, res, next) {
 
-    if (req.originalUrl != "/api/login") {
-        //var token = req.headers['x-access-token'];
-        var tokens = req.headers['authorization'].replace('Bearer ' , '')
+    if (req.originalUrl != "/api/login" && req.originalUrl.indexOf('importdatabase') < 0) {
+        var tokens = req.headers['authorization'].replace('Bearer ', '')
 
         if (tokens) {
             jwt.verify(tokens, require("../conf/config").configName, function (err, decoded) {
@@ -32,7 +31,7 @@ app.use(function (req, res, next) {
                     return res.status(403).send({
                         success: false,
                         message: 'Falha ao tentar autenticar o token!'
-                   });
+                    });
                 } else {
                     //se tudo correr bem, salver a requisição para o uso em outras rotas
                     req.decoded = decoded;
@@ -47,7 +46,7 @@ app.use(function (req, res, next) {
                 message: 'Não há token.'
             });
         }
-    }else{
+    } else {
         next();
     }
 
