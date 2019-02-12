@@ -86,7 +86,7 @@ const filterType = (query) => {
     }
 
     switch (query.type) {
-        case 'sexo':
+        case 'gênero':
             itemFilter['dados_pessoais.sexo'] = { '$regex': query.value, '$options': 'i' };
             break;
     }
