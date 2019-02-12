@@ -3,6 +3,7 @@ const status = require('http-status');
 var ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
 const _ = require("lodash");
+const request = require('request');
 
 function sortPessoa(type) {
     switch (type) {
@@ -12,6 +13,30 @@ function sortPessoa(type) {
             return 'endereco_contato.city';
         default:
             return 'dados_pessoais.name';
+    }
+}
+
+
+function idMailee(addressemail) {
+    var clientServerOptions = {
+        uri: 'https://mailee.p.rapidapi.com/contacts?api_key='+ require("../conf/config").xrapidapikey + '&subdomain='+ require("../conf/config").subdomain ,
+        method: 'Post',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        form: { email: addressemail}
+    };
+
+    try {
+        request(clientServerOptions, (error, response, body) => {
+            if (error) {
+                return Q.resolve(null);
+            } else {
+                return Q.resolve(response.id);
+            }
+        });
+    } catch (error) {
+        response.status(status.UNAUTHORIZED).send(JSON.stringify('Erro ao criar Cadastro no Mailee!'));
     }
 }
 
@@ -139,85 +164,90 @@ exports.postPessoa = (request, response, next) => {
 
                     } else {
 
-                        ///Object para inserção
-                        var myobj = {
-                            "dados_pessoais": {
-                                "name": request.body.dados_pessoais.name,
-                                "cpf": request.body.dados_pessoais.cpf,
-                                "rg": request.body.dados_pessoais.rg,
-                                "birthDate": request.body.dados_pessoais.birthDate,
-                                "etnia": request.body.dados_pessoais.etnia,
-                                "motherName": request.body.dados_pessoais.motherName,
-                                "sexo": request.body.dados_pessoais.sexo,
-                                "transgenero": request.body.dados_pessoais.transgenero,
-                                "orientacosexusal": request.body.dados_pessoais.orientacosexusal,
-                                "socialName": request.body.dados_pessoais.socialName
-                            },
-                            "endereco_contato": {
-                                "zipcode": request.body.endereco_contato.zipcode,
-                                "address": request.body.endereco_contato.address,
-                                "numberAddress": request.body.endereco_contato.numberAddress,
-                                "complement": request.body.endereco_contato.complement,
-                                "neighborhood": request.body.endereco_contato.neighborhood,
-                                "city": request.body.endereco_contato.city,
-                                "state": request.body.endereco_contato.state,
-                                "gps": request.body.endereco_contato.gps,
-                                "phone": request.body.endereco_contato.phone,
-                                "mobile": request.body.endereco_contato.mobile,
-                                "email": request.body.endereco_contato.email,
-                                "facebook": request.body.endereco_contato.facebook,
-                                "twitter": request.body.endereco_contato.twitter,
-                                "instagram": request.body.endereco_contato.instagram
-                            },
-                            "profissional_eleitoral": {
-                                "company": request.body.profissional_eleitoral.company,
-                                "admissionDate": request.body.profissional_eleitoral.admissionDate,
-                                "terminationDate": request.body.profissional_eleitoral.terminationDate,
-                                "positionCompany": request.body.profissional_eleitoral.positionCompany,
-                                "workplace": request.body.profissional_eleitoral.workplace,
-                                "Sindicalizado": request.body.profissional_eleitoral.Sindicalizado,
-                                "associationNumber": request.body.profissional_eleitoral.associationNumber,
-                                "militante": request.body.profissional_eleitoral.militante,
-                                "directorsindication": request.body.profissional_eleitoral.directorsindication,
-                                "electoraltitle": request.body.profissional_eleitoral.electoraltitle,
-                                "zone": request.body.profissional_eleitoral.zone,
-                                "section": request.body.profissional_eleitoral.section,
-                                "county": request.body.profissional_eleitoral.county,
-                                "state": request.body.profissional_eleitoral.state
-                            },
-                            "notificacoes_anotacoes": {
-                                "correios": request.body.notificacoes_anotacoes.correios,
-                                "telefone": request.body.notificacoes_anotacoes.telefone,
-                                "sms": request.body.notificacoes_anotacoes.sms,
-                                "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
-                                "telegram": request.body.notificacoes_anotacoes.telegram,
-                                "email": request.body.notificacoes_anotacoes.email,
-                                "score": request.body.notificacoes_anotacoes.score,
-                                "history": request.body.notificacoes_anotacoes.history,
-                                "datacreatehistory": new Date(Date.now())
-                            },
-                            //"userCreate" : request.decoded.name,
-                            "dataCreate": new Date(Date.now()),
-                            //"userUpdate" : request.decoded.name,
-                            "dataUpdate": new Date(Date.now())
-                        }
+                        idMailee(request.body.endereco_contato.email)
+                            .then((data) => {
+                                ///Object para inserção
+                                var myobj = {
+                                    "dados_pessoais": {
+                                        "name": request.body.dados_pessoais.name,
+                                        "cpf": request.body.dados_pessoais.cpf,
+                                        "rg": request.body.dados_pessoais.rg,
+                                        "birthDate": request.body.dados_pessoais.birthDate,
+                                        "etnia": request.body.dados_pessoais.etnia,
+                                        "motherName": request.body.dados_pessoais.motherName,
+                                        "sexo": request.body.dados_pessoais.sexo,
+                                        "transgenero": request.body.dados_pessoais.transgenero,
+                                        "orientacosexusal": request.body.dados_pessoais.orientacosexusal,
+                                        "socialName": request.body.dados_pessoais.socialName
+                                    },
+                                    "endereco_contato": {
+                                        "zipcode": request.body.endereco_contato.zipcode,
+                                        "address": request.body.endereco_contato.address,
+                                        "numberAddress": request.body.endereco_contato.numberAddress,
+                                        "complement": request.body.endereco_contato.complement,
+                                        "neighborhood": request.body.endereco_contato.neighborhood,
+                                        "city": request.body.endereco_contato.city,
+                                        "state": request.body.endereco_contato.state,
+                                        "gps": request.body.endereco_contato.gps,
+                                        "phone": request.body.endereco_contato.phone,
+                                        "mobile": request.body.endereco_contato.mobile,
+                                        "email": request.body.endereco_contato.email,
+                                        "facebook": request.body.endereco_contato.facebook,
+                                        "twitter": request.body.endereco_contato.twitter,
+                                        "instagram": request.body.endereco_contato.instagram
+                                    },
+                                    "profissional_eleitoral": {
+                                        "company": request.body.profissional_eleitoral.company,
+                                        "admissionDate": request.body.profissional_eleitoral.admissionDate,
+                                        "terminationDate": request.body.profissional_eleitoral.terminationDate,
+                                        "positionCompany": request.body.profissional_eleitoral.positionCompany,
+                                        "workplace": request.body.profissional_eleitoral.workplace,
+                                        "Sindicalizado": request.body.profissional_eleitoral.Sindicalizado,
+                                        "associationNumber": request.body.profissional_eleitoral.associationNumber,
+                                        "militante": request.body.profissional_eleitoral.militante,
+                                        "directorsindication": request.body.profissional_eleitoral.directorsindication,
+                                        "electoraltitle": request.body.profissional_eleitoral.electoraltitle,
+                                        "zone": request.body.profissional_eleitoral.zone,
+                                        "section": request.body.profissional_eleitoral.section,
+                                        "county": request.body.profissional_eleitoral.county,
+                                        "state": request.body.profissional_eleitoral.state
+                                    },
+                                    "notificacoes_anotacoes": {
+                                        "correios": request.body.notificacoes_anotacoes.correios,
+                                        "telefone": request.body.notificacoes_anotacoes.telefone,
+                                        "sms": request.body.notificacoes_anotacoes.sms,
+                                        "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
+                                        "telegram": request.body.notificacoes_anotacoes.telegram,
+                                        "email": request.body.notificacoes_anotacoes.email,
+                                        "score": request.body.notificacoes_anotacoes.score,
+                                        "history": request.body.notificacoes_anotacoes.history,
+                                        "datacreatehistory": new Date(Date.now())
+                                    },
+                                    "id_mailee": data.id,
+                                    //"userCreate" : request.decoded.name,
+                                    "dataCreate": new Date(Date.now()),
+                                    //"userUpdate" : request.decoded.name,
+                                    "dataUpdate": new Date(Date.now())
+                                }
 
-                        dbo.collection("pessoa").insertOne(myobj, function (err, res) {
+                                dbo.collection("pessoa").insertOne(myobj, function (err, res) {
 
-                            if (err) {
+                                    if (err) {
 
-                                response.status(status.BAD_REQUEST).send(JSON.stringify(err));
+                                        response.status(status.BAD_REQUEST).send(JSON.stringify(err));
 
-                            }
-                            else {
+                                    }
+                                    else {
 
-                                response.status(status.OK).send(JSON.stringify("Usuario cadastrado com sucesso"));
+                                        response.status(status.OK).send(JSON.stringify("Usuario cadastrado com sucesso"));
 
-                            }
+                                    }
 
-                            db.close();
+                                    db.close();
 
-                        });
+                                });
+
+                            })
                     }
 
                 }
