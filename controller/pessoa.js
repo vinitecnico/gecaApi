@@ -6,6 +6,7 @@ const _ = require("lodash");
 const htmlDecode = require('js-htmlencode').htmlDecode;
 const fetch = require('isomorphic-fetch'); // or another library of choice.
 const Dropbox = require('dropbox').Dropbox;
+const request = require('request');
 const dbx = new Dropbox({ accessToken: require("../conf/config").keyDropbox, fetch: fetch });
 
 function sortPessoa(type) {
@@ -21,20 +22,23 @@ function sortPessoa(type) {
 
 function idMailee(addressemail) {
     const clientServerOptions = {
-        uri: 'https://mailee.p.rapidapi.com/contacts?api_key=' + require("../conf/config").xrapidapikey + '&subdomain=' + require("../conf/config").subdomain,
-        method: 'Post',
+        uri: require("../conf/config").urlMailee +'contacts',
+        qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
+        method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
         },
         form: { email: addressemail }
     };
 
     try {
         request(clientServerOptions, (error, response, body) => {
+            console.log(body)
             if (error) {
                 return Q.resolve(null);
-            } else {
-                return Q.resolve(response);
+            } else {                
+                return Q.resolve(body);
             }
         });
     } catch (error) {
@@ -220,10 +224,11 @@ exports.postPessoa = (request, response, next) => {
                                 "score": request.body.notificacoes_anotacoes.score,
                                 "history": request.body.notificacoes_anotacoes.history
                             },
-                            "file": {
-                                "url": request.body.file.url,
-                                "fileName": request.body.file.fileName
-                            },
+                            // "file": {
+                            //     "url": request.body.file.url,
+                            //     "fileName": request.body.file.fileName
+                            // },
+                            //"id_mailee": data ? data.id: null,
                             //"userCreate" : request.decoded.name,
                             "dataCreate": new Date(Date.now()),
                             //"userUpdate" : request.decoded.name,
