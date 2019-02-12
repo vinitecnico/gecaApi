@@ -114,9 +114,11 @@ const ignorObject = {
     "endereco_contato.instagram": 0,
     "profissional_eleitoral": 0,
     "notificacoes_anotacoes": 0,
+    "file": 0,
     "datacreate": 0,
     "dataUpdate": 0,
-    "dataCreate": 0
+    "dataCreate": 0,
+    "userUpdate": 0
 }
 
 exports.EmailFilterPeople = (request, response, next) => {
