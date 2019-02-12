@@ -115,6 +115,7 @@ routes.get('/home', controllerHome.getCountersHome);
 
 ///Email
 routes.post('/email', controllerEmail.sendEmail);
+routes.get('/email/filterPeople', controllerEmail.EmailFilterPeople);
 
 ///CNPJ
 routes.get('/cnpjws/:cnpj', controllerCnpjWs.getCNPJWs);
