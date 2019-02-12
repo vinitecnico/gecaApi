@@ -79,22 +79,18 @@ const sortPessoa = (type) => {
 
 const filterType = (query) => {
     let filter = [];
+    const itemFilter = {};
+    itemFilter['endereco_contato.email'] = { '$exists': true, $ne: null, $ne: '' };
     if (query.filter) {
-        filter = [{ 'dados_pessoais.name': { '$regex': query.filter, '$options': 'i' } },
-        { 'dados_pessoais.cpf': { '$regex': query.filter, '$options': 'i' } },
-        { 'endereco_contato.email': { '$regex': query.filter, '$options': 'i' } },
-        { 'endereco_contato.city': { '$regex': query.filter, '$options': 'i' } }];
+        itemFilter['dados_pessoais.name'] = { '$regex': query.filter, '$options': 'i' };
     }
-    filter.push({ 'endereco_contato.email': { $ne: null } });
+
     switch (query.type) {
         case 'sexo':
-            filter.push({
-                'dados_pessoais.sexo': { '$regex': query.value, '$options': 'i' }
-                
-            });
-            filter.push({'endereco_contato.email': { $exists: true, $ne: null } });
-            return filter;
+            itemFilter['dados_pessoais.sexo'] = { '$regex': query.value, '$options': 'i' };
+            break;
     }
+    filter.push(itemFilter);
     return filter;
 }
 
