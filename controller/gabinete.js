@@ -4,9 +4,9 @@ const status = require('http-status');
 const ObjectId = require('mongodb').ObjectId;
 const Q = require('q');
 const _ = require("lodash");
-require('isomorphic-fetch');
+const fetch = require('isomorphic-fetch');
 const Dropbox = require('dropbox').Dropbox;
-const dbx = new Dropbox({ accessToken: require("../conf/config").keyDropbox });
+const dbx = new Dropbox({ accessToken: require("../conf/config").keyDropbox, fetch: fetch });
 
 
 ///GET gabinete

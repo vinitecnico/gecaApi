@@ -1,10 +1,9 @@
 const status = require('http-status');
 const FileReader = require('filereader');
-require('isomorphic-fetch'); // or another library of choice.
-var cors = require('cors');
+const fetch = require('isomorphic-fetch');
 const multer = require('multer');
 const Dropbox = require('dropbox').Dropbox;
-const dbx = new Dropbox({ accessToken: require("../conf/config").keyDropbox });
+const dbx = new Dropbox({ accessToken: require("../conf/config").keyDropbox, fetch: fetch });
 
 ///GET List files
 exports.getFilesList = (request, response, next) => {
