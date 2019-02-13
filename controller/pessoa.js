@@ -9,6 +9,7 @@ const Dropbox = require('dropbox').Dropbox;
 const request = require('request');
 const dbx = new Dropbox({ accessToken: require("../conf/config").keyDropbox, fetch: fetch });
 
+
 function sortPessoa(type) {
     switch (type) {
         case 'cpf':
@@ -20,9 +21,44 @@ function sortPessoa(type) {
     }
 }
 
-function idMailee(addressemail) {
+function GetMaileeContact(addressemail) {
+    const defer = Q.defer();
     const clientServerOptions = {
-        uri: require("../conf/config").urlMailee +'contacts',
+        uri: require("../conf/config").urlMailee + 'contacts',
+        qs: {
+            'where[email]': addressemail,
+            api_key: require("../conf/config").xrapidapikey,
+            subdomain: require("../conf/config").subdomain
+        },
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
+        }
+    };
+
+    try {
+        request(clientServerOptions, (error, response, body) => {
+
+            if (error) {
+                defer.resolve(null);
+            } else if (JSON.parse(body).length != 0) {
+                defer.resolve(JSON.parse(body).id);
+            } else {
+                defer.resolve(body);
+            }
+        });
+    } catch (error) {
+        defer.resolve(null);
+    }
+
+    return defer.promise;
+}
+
+function postMaileContact(addressemail) {
+    const defer = Q.defer();
+    const clientServerOptions = {
+        uri: require("../conf/config").urlMailee + 'contacts',
         qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
         method: 'POST',
         headers: {
@@ -34,16 +70,17 @@ function idMailee(addressemail) {
 
     try {
         request(clientServerOptions, (error, response, body) => {
-            console.log(body)
             if (error) {
-                return Q.resolve(null);
-            } else {                
-                return Q.resolve(body);
+                defer.resolve(null);
+            } else {
+                defer.resolve(JSON.parse(body).id);
             }
         });
     } catch (error) {
-        return Q.resolve(null);
+        defer.resolve(null);
     }
+
+    return defer.promise;
 }
 
 ///GET USER
@@ -142,6 +179,71 @@ exports.getOnlyPessoa = (request, response, next) => {
 ///POST Pessoa
 exports.postPessoa = (request, response, next) => {
 
+    var myobj = {
+        "dados_pessoais": {
+            "name": request.body.dados_pessoais.name,
+            "cpf": request.body.dados_pessoais.cpf,
+            "rg": request.body.dados_pessoais.rg,
+            "birthDate": request.body.dados_pessoais.birthDate,
+            "etnia": request.body.dados_pessoais.etnia,
+            "motherName": request.body.dados_pessoais.motherName,
+            "sexo": request.body.dados_pessoais.sexo,
+            "transgenero": request.body.dados_pessoais.transgenero,
+            "orientacosexusal": request.body.dados_pessoais.orientacosexusal,
+            "socialName": request.body.dados_pessoais.socialName
+        },
+        "endereco_contato": {
+            "zipcode": request.body.endereco_contato.zipcode,
+            "address": request.body.endereco_contato.address,
+            "numberAddress": request.body.endereco_contato.numberAddress,
+            "complement": request.body.endereco_contato.complement,
+            "neighborhood": request.body.endereco_contato.neighborhood,
+            "city": request.body.endereco_contato.city,
+            "state": request.body.endereco_contato.state,
+            "gps": request.body.endereco_contato.gps,
+            "phone": request.body.endereco_contato.phone,
+            "mobile": request.body.endereco_contato.mobile,
+            "email": request.body.endereco_contato.email,
+            "facebook": request.body.endereco_contato.facebook,
+            "twitter": request.body.endereco_contato.twitter,
+            "instagram": request.body.endereco_contato.instagram
+        },
+        "profissional_eleitoral": {
+            "company": request.body.profissional_eleitoral.company,
+            "admissionDate": request.body.profissional_eleitoral.admissionDate,
+            "terminationDate": request.body.profissional_eleitoral.terminationDate,
+            "positionCompany": request.body.profissional_eleitoral.positionCompany,
+            "workplace": request.body.profissional_eleitoral.workplace,
+            "Sindicalizado": request.body.profissional_eleitoral.Sindicalizado,
+            "associationNumber": request.body.profissional_eleitoral.associationNumber,
+            "militante": request.body.profissional_eleitoral.militante,
+            "directorsindication": request.body.profissional_eleitoral.directorsindication,
+            "electoraltitle": request.body.profissional_eleitoral.electoraltitle,
+            "zone": request.body.profissional_eleitoral.zone,
+            "section": request.body.profissional_eleitoral.section,
+            "county": request.body.profissional_eleitoral.county,
+            "state": request.body.profissional_eleitoral.state
+        },
+        "notificacoes_anotacoes": {
+            "correios": request.body.notificacoes_anotacoes.correios,
+            "telefone": request.body.notificacoes_anotacoes.telefone,
+            "sms": request.body.notificacoes_anotacoes.sms,
+            "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
+            "telegram": request.body.notificacoes_anotacoes.telegram,
+            "email": request.body.notificacoes_anotacoes.email,
+            "score": request.body.notificacoes_anotacoes.score,
+            "history": request.body.notificacoes_anotacoes.history
+        },
+        "file": {
+            "url": request.body.file.url,
+            "fileName": request.body.file.fileName
+        },
+        "id_mailee": null,
+        "dataCreate": new Date(Date.now()),
+        "dataUpdate": new Date(Date.now())
+    }
+
+    ///Verifica se o contato esta preenchido
     MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
         if (erro) {
@@ -156,186 +258,43 @@ exports.postPessoa = (request, response, next) => {
             dbo.collection("pessoa").find({ "dados_pessoais.cpf": request.body.dados_pessoais.cpf }).toArray(function (err, res) {
 
                 if (err) {
-
                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-
                 }
                 else {
 
                     if (res.length != 0) {
-
                         response.status(status.UNAUTHORIZED).send(JSON.stringify("Cadastro do usuario foi encontrado em nossa base."));
-
                     } else {
+                        if (myobj.endereco_contato.email != "") {
+                            GetMaileeContact(myobj.endereco_contato.email)
+                                .then((dataGet) => {
+                                    if (dataGet != "[]") {
+                                        myobj.id_mailee = dataGet;
+                                    } else {
+                                        return postMaileContact(myobj.endereco_contato.email)
+                                            .then((dataPost) => {
+                                                myobj.id_mailee = dataPost;
+                                                return Q.resolve();
+                                            })
+                                    }
 
-                        ///Object para inserção
-                        var myobj = {
-                            "dados_pessoais": {
-                                "name": request.body.dados_pessoais.name,
-                                "cpf": request.body.dados_pessoais.cpf,
-                                "rg": request.body.dados_pessoais.rg,
-                                "birthDate": request.body.dados_pessoais.birthDate,
-                                "etnia": request.body.dados_pessoais.etnia,
-                                "motherName": request.body.dados_pessoais.motherName,
-                                "sexo": request.body.dados_pessoais.sexo,
-                                "transgenero": request.body.dados_pessoais.transgenero,
-                                "orientacosexusal": request.body.dados_pessoais.orientacosexusal,
-                                "socialName": request.body.dados_pessoais.socialName
-                            },
-                            "endereco_contato": {
-                                "zipcode": request.body.endereco_contato.zipcode,
-                                "address": request.body.endereco_contato.address,
-                                "numberAddress": request.body.endereco_contato.numberAddress,
-                                "complement": request.body.endereco_contato.complement,
-                                "neighborhood": request.body.endereco_contato.neighborhood,
-                                "city": request.body.endereco_contato.city,
-                                "state": request.body.endereco_contato.state,
-                                "gps": request.body.endereco_contato.gps,
-                                "phone": request.body.endereco_contato.phone,
-                                "mobile": request.body.endereco_contato.mobile,
-                                "email": request.body.endereco_contato.email,
-                                "facebook": request.body.endereco_contato.facebook,
-                                "twitter": request.body.endereco_contato.twitter,
-                                "instagram": request.body.endereco_contato.instagram
-                            },
-                            "profissional_eleitoral": {
-                                "company": request.body.profissional_eleitoral.company,
-                                "admissionDate": request.body.profissional_eleitoral.admissionDate,
-                                "terminationDate": request.body.profissional_eleitoral.terminationDate,
-                                "positionCompany": request.body.profissional_eleitoral.positionCompany,
-                                "workplace": request.body.profissional_eleitoral.workplace,
-                                "Sindicalizado": request.body.profissional_eleitoral.Sindicalizado,
-                                "associationNumber": request.body.profissional_eleitoral.associationNumber,
-                                "militante": request.body.profissional_eleitoral.militante,
-                                "directorsindication": request.body.profissional_eleitoral.directorsindication,
-                                "electoraltitle": request.body.profissional_eleitoral.electoraltitle,
-                                "zone": request.body.profissional_eleitoral.zone,
-                                "section": request.body.profissional_eleitoral.section,
-                                "county": request.body.profissional_eleitoral.county,
-                                "state": request.body.profissional_eleitoral.state
-                            },
-                            "notificacoes_anotacoes": {
-                                "correios": request.body.notificacoes_anotacoes.correios,
-                                "telefone": request.body.notificacoes_anotacoes.telefone,
-                                "sms": request.body.notificacoes_anotacoes.sms,
-                                "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
-                                "telegram": request.body.notificacoes_anotacoes.telegram,
-                                "email": request.body.notificacoes_anotacoes.email,
-                                "score": request.body.notificacoes_anotacoes.score,
-                                "history": request.body.notificacoes_anotacoes.history
-                            },
-                            // "file": {
-                            //     "url": request.body.file.url,
-                            //     "fileName": request.body.file.fileName
-                            // },
-                            //"id_mailee": data ? data.id: null,
-                            //"userCreate" : request.decoded.name,
-                            "dataCreate": new Date(Date.now()),
-                            //"userUpdate" : request.decoded.name,
-                            "dataUpdate": new Date(Date.now())
+                                    return Q.resolve();
+                                })
+                                .then(() => {
+                                    dbo.collection("pessoa").insertOne(myobj, function (err, res) {
+
+                                        if (err) {
+                                            response.status(status.BAD_REQUEST).send(JSON.stringify(err));
+                                        }
+                                        else {
+                                            response.status(status.OK).send(JSON.stringify("Usuario cadastrado com sucesso"));
+                                        }
+
+                                        db.close();
+                                    });
+                                })
                         }
-
-                        dbo.collection("pessoa").insertOne(myobj, function (err, res) {
-
-                            if (err) {
-
-                                response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-
-                            }
-                            else {
-
-                                response.status(status.OK).send(JSON.stringify("Usuario cadastrado com sucesso"));
-
-                            }
-
-                            db.close();
-
-                        });
                     }
-
-                    idMailee(request.body.endereco_contato.email)
-                        .then((data) => {
-                            ///Object para inserção
-                            var myobj = {
-                                "dados_pessoais": {
-                                    "name": request.body.dados_pessoais.name,
-                                    "cpf": request.body.dados_pessoais.cpf,
-                                    "rg": request.body.dados_pessoais.rg,
-                                    "birthDate": request.body.dados_pessoais.birthDate,
-                                    "etnia": request.body.dados_pessoais.etnia,
-                                    "motherName": request.body.dados_pessoais.motherName,
-                                    "sexo": request.body.dados_pessoais.sexo,
-                                    "transgenero": request.body.dados_pessoais.transgenero,
-                                    "orientacosexusal": request.body.dados_pessoais.orientacosexusal,
-                                    "socialName": request.body.dados_pessoais.socialName
-                                },
-                                "endereco_contato": {
-                                    "zipcode": request.body.endereco_contato.zipcode,
-                                    "address": request.body.endereco_contato.address,
-                                    "numberAddress": request.body.endereco_contato.numberAddress,
-                                    "complement": request.body.endereco_contato.complement,
-                                    "neighborhood": request.body.endereco_contato.neighborhood,
-                                    "city": request.body.endereco_contato.city,
-                                    "state": request.body.endereco_contato.state,
-                                    "gps": request.body.endereco_contato.gps,
-                                    "phone": request.body.endereco_contato.phone,
-                                    "mobile": request.body.endereco_contato.mobile,
-                                    "email": request.body.endereco_contato.email,
-                                    "facebook": request.body.endereco_contato.facebook,
-                                    "twitter": request.body.endereco_contato.twitter,
-                                    "instagram": request.body.endereco_contato.instagram
-                                },
-                                "profissional_eleitoral": {
-                                    "company": request.body.profissional_eleitoral.company,
-                                    "admissionDate": request.body.profissional_eleitoral.admissionDate,
-                                    "terminationDate": request.body.profissional_eleitoral.terminationDate,
-                                    "positionCompany": request.body.profissional_eleitoral.positionCompany,
-                                    "workplace": request.body.profissional_eleitoral.workplace,
-                                    "Sindicalizado": request.body.profissional_eleitoral.Sindicalizado,
-                                    "associationNumber": request.body.profissional_eleitoral.associationNumber,
-                                    "militante": request.body.profissional_eleitoral.militante,
-                                    "directorsindication": request.body.profissional_eleitoral.directorsindication,
-                                    "electoraltitle": request.body.profissional_eleitoral.electoraltitle,
-                                    "zone": request.body.profissional_eleitoral.zone,
-                                    "section": request.body.profissional_eleitoral.section,
-                                    "county": request.body.profissional_eleitoral.county,
-                                    "state": request.body.profissional_eleitoral.state
-                                },
-                                "notificacoes_anotacoes": {
-                                    "correios": request.body.notificacoes_anotacoes.correios,
-                                    "telefone": request.body.notificacoes_anotacoes.telefone,
-                                    "sms": request.body.notificacoes_anotacoes.sms,
-                                    "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
-                                    "telegram": request.body.notificacoes_anotacoes.telegram,
-                                    "email": request.body.notificacoes_anotacoes.email,
-                                    "score": request.body.notificacoes_anotacoes.score,
-                                    "history": request.body.notificacoes_anotacoes.history,
-                                    "datacreatehistory": new Date(Date.now())
-                                },
-                                "id_mailee": data ? data.id: null,
-                                //"userCreate" : request.decoded.name,
-                                "dataCreate": new Date(Date.now()),
-                                //"userUpdate" : request.decoded.name,
-                                "dataUpdate": new Date(Date.now())
-                            }
-
-                            dbo.collection("pessoa").insertOne(myobj, function (err, res) {
-
-                                if (err) {
-
-                                    response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-
-                                }
-                                else {
-
-                                    response.status(status.OK).send(JSON.stringify("Usuario cadastrado com sucesso"));
-
-                                }
-
-                                db.close();
-
-                            });
-                        });
                 }
             });
 
@@ -347,106 +306,124 @@ exports.postPessoa = (request, response, next) => {
 
 ///PUT Pessoa
 exports.putPessoa = (request, response, next) => {
-    MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true },
-        function (erro, db) {
-            if (erro) {
-                response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+    GetMaileeContact(request.body.id_mailee)
+        .then((dataGet) => {
+            if (dataGet != "[]") {
+                request.body.id_mailee = dataGet;
             } else {
-                /// DataBase            
-                var newvalues = {
-                    $set: {
-                        "dados_pessoais": {
-                            "name": request.body.dados_pessoais.name,
-                            "cpf": request.body.dados_pessoais.cpf,
-                            "rg": request.body.dados_pessoais.rg,
-                            "birthDate": request.body.dados_pessoais.birthDate,
-                            "etnia": request.body.dados_pessoais.etnia,
-                            "motherName": request.body.dados_pessoais.motherName,
-                            "sexo": request.body.dados_pessoais.sexo,
-                            "transgenero": request.body.dados_pessoais.transgenero,
-                            "orientacosexusal": request.body.dados_pessoais.orientacosexusal,
-                            "socialName": request.body.dados_pessoais.socialName
-                        },
-                        "endereco_contato": {
-                            "zipcode": request.body.endereco_contato.zipcode,
-                            "address": request.body.endereco_contato.address,
-                            "numberAddress": request.body.endereco_contato.numberAddress,
-                            "complement": request.body.endereco_contato.complement,
-                            "neighborhood": request.body.endereco_contato.neighborhood,
-                            "city": request.body.endereco_contato.city,
-                            "state": request.body.endereco_contato.state,
-                            "gps": request.body.endereco_contato.gps,
-                            "phone": request.body.endereco_contato.phone,
-                            "mobile": request.body.endereco_contato.mobile,
-                            "email": request.body.endereco_contato.email,
-                            "facebook": request.body.endereco_contato.facebook,
-                            "twitter": request.body.endereco_contato.twitter,
-                            "instagram": request.body.endereco_contato.instagram
-                        },
-                        "profissional_eleitoral": {
-                            "company": request.body.profissional_eleitoral.company,
-                            "admissionDate": request.body.profissional_eleitoral.admissionDate,
-                            "terminationDate": request.body.profissional_eleitoral.terminationDate,
-                            "positionCompany": request.body.profissional_eleitoral.positionCompany,
-                            "workplace": request.body.profissional_eleitoral.workplace,
-                            "Sindicalizado": request.body.profissional_eleitoral.Sindicalizado,
-                            "associationNumber": request.body.profissional_eleitoral.associationNumber,
-                            "militante": request.body.profissional_eleitoral.militante,
-                            "directorsindication": request.body.profissional_eleitoral.directorsindication,
-                            "electoraltitle": request.body.profissional_eleitoral.electoraltitle,
-                            "zone": request.body.profissional_eleitoral.zone,
-                            "section": request.body.profissional_eleitoral.section,
-                            "county": request.body.profissional_eleitoral.county,
-                            "state": request.body.profissional_eleitoral.state
-                        },
-                        "notificacoes_anotacoes": {
-                            "correios": request.body.notificacoes_anotacoes.correios,
-                            "telefone": request.body.notificacoes_anotacoes.telefone,
-                            "sms": request.body.notificacoes_anotacoes.sms,
-                            "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
-                            "telegram": request.body.notificacoes_anotacoes.telegram,
-                            "email": request.body.notificacoes_anotacoes.email,
-                            "score": request.body.notificacoes_anotacoes.score,
-                            "history": request.body.notificacoes_anotacoes.history
-                        },
-                        "file": {
-                            "url": request.body.file.url,
-                            "fileName": request.body.file.fileName
-                        },
-                        "userUpdate": request.decoded.name,
-                        "dataUpdate": new Date(Date.now())
-                    }
-                }
-
-                const promises = [];
-
-                promises.push(deleteFile(db, request.params.id, request.body.file.fileName));
-
-                promises.push(db.db("baseinit").collection("pessoa")
-                    .updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
-                        if (err) {
-                            return Q.reject(err);
-                        } else {
-                            if (res.modifiedCount != 0) {
-                                return Q.resolve(true);
-                            } else {
-                                return Q.reject('Pessoa nao encontrado');
-                            }
-                        }
-                    }));
-
-                Q.all(promises)
-                    .then(() => {
-                        db.close();
-                        response.status(status.CREATED)
-                            .send(JSON.stringify("Pessoa atualizado com sucesso."));
+                return postMaileContact(myobj.endereco_contato.email)
+                    .then((dataPost) => {
+                        request.body.id_mailee = dataPost;
+                        return Q.resolve();
                     })
-                    .catch((error) => {
-                        response.status(status.BAD_REQUEST).send(JSON.stringify(error));
-                    });
             }
-        });
 
+            return Q.resolve();
+        })
+        .then(() => {
+            var newvalues = {
+                $set: {
+                    "dados_pessoais": {
+                        "name": request.body.dados_pessoais.name,
+                        "cpf": request.body.dados_pessoais.cpf,
+                        "rg": request.body.dados_pessoais.rg,
+                        "birthDate": request.body.dados_pessoais.birthDate,
+                        "etnia": request.body.dados_pessoais.etnia,
+                        "motherName": request.body.dados_pessoais.motherName,
+                        "sexo": request.body.dados_pessoais.sexo,
+                        "transgenero": request.body.dados_pessoais.transgenero,
+                        "orientacosexusal": request.body.dados_pessoais.orientacosexusal,
+                        "socialName": request.body.dados_pessoais.socialName
+                    },
+                    "endereco_contato": {
+                        "zipcode": request.body.endereco_contato.zipcode,
+                        "address": request.body.endereco_contato.address,
+                        "numberAddress": request.body.endereco_contato.numberAddress,
+                        "complement": request.body.endereco_contato.complement,
+                        "neighborhood": request.body.endereco_contato.neighborhood,
+                        "city": request.body.endereco_contato.city,
+                        "state": request.body.endereco_contato.state,
+                        "gps": request.body.endereco_contato.gps,
+                        "phone": request.body.endereco_contato.phone,
+                        "mobile": request.body.endereco_contato.mobile,
+                        "email": request.body.endereco_contato.email,
+                        "facebook": request.body.endereco_contato.facebook,
+                        "twitter": request.body.endereco_contato.twitter,
+                        "instagram": request.body.endereco_contato.instagram
+                    },
+                    "profissional_eleitoral": {
+                        "company": request.body.profissional_eleitoral.company,
+                        "admissionDate": request.body.profissional_eleitoral.admissionDate,
+                        "terminationDate": request.body.profissional_eleitoral.terminationDate,
+                        "positionCompany": request.body.profissional_eleitoral.positionCompany,
+                        "workplace": request.body.profissional_eleitoral.workplace,
+                        "Sindicalizado": request.body.profissional_eleitoral.Sindicalizado,
+                        "associationNumber": request.body.profissional_eleitoral.associationNumber,
+                        "militante": request.body.profissional_eleitoral.militante,
+                        "directorsindication": request.body.profissional_eleitoral.directorsindication,
+                        "electoraltitle": request.body.profissional_eleitoral.electoraltitle,
+                        "zone": request.body.profissional_eleitoral.zone,
+                        "section": request.body.profissional_eleitoral.section,
+                        "county": request.body.profissional_eleitoral.county,
+                        "state": request.body.profissional_eleitoral.state
+                    },
+                    "notificacoes_anotacoes": {
+                        "correios": request.body.notificacoes_anotacoes.correios,
+                        "telefone": request.body.notificacoes_anotacoes.telefone,
+                        "sms": request.body.notificacoes_anotacoes.sms,
+                        "whatsapp": request.body.notificacoes_anotacoes.whatsapp,
+                        "telegram": request.body.notificacoes_anotacoes.telegram,
+                        "email": request.body.notificacoes_anotacoes.email,
+                        "score": request.body.notificacoes_anotacoes.score,
+                        "history": request.body.notificacoes_anotacoes.history
+                    },
+                    "file": {
+                        "url": request.body.file.url,
+                        "fileName": request.body.file.fileName
+                    },
+                    "id_mailee": request.body.id_mailee,
+                    "userUpdate": request.decoded.name,
+                    "dataUpdate": new Date(Date.now())
+                }
+            }
+
+            MongoClient.connect(require("../conf/config").mongoURI, { useNewUrlParser: true },
+                function (erro, db) {
+                    if (erro) {
+                        response.status(status.BAD_REQUEST).send(JSON.stringify(erro));
+                    } else {
+                        /// DataBase            
+
+
+                        const promises = [];
+
+                        promises.push(deleteFile(db, request.params.id, request.body.file.fileName));
+
+                        promises.push(db.db("baseinit").collection("pessoa")
+                            .updateOne({ _id: ObjectId(request.params.id) }, newvalues, function (err, res) {
+                                if (err) {
+                                    return Q.reject(err);
+                                } else {
+                                    if (res.modifiedCount != 0) {
+                                        return Q.resolve(true);
+                                    } else {
+                                        return Q.reject('Pessoa nao encontrado');
+                                    }
+                                }
+                            }));
+
+                        Q.all(promises)
+                            .then(() => {
+                                db.close();
+                                response.status(status.CREATED)
+                                    .send(JSON.stringify("Pessoa atualizado com sucesso."));
+                            })
+                            .catch((error) => {
+                                response.status(status.BAD_REQUEST).send(JSON.stringify(error));
+                            });
+                    }
+                });
+        })
 }
 
 function deleteFile(db, id, fileName) {
