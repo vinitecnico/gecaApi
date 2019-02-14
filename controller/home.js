@@ -5,6 +5,40 @@ const _ = require("lodash");
 const Q = require('q');
 const moment = require('moment');
 
+const ignorObject = {
+    "dados_pessoais.name": 0,
+    "dados_pessoais.birthDate": 0,
+    "dados_pessoais.cpf": 0,
+    "dados_pessoais.rg": 0,
+    "dados_pessoais.motherName": 0,
+    "dados_pessoais.transgenero": 0,
+    "dados_pessoais.orientacosexusal": 0,
+    "dados_pessoais.socialName": 0,
+    "endereco_contato.email": 0,
+    "endereco_contato.zipcode": 0,
+    "endereco_contato.address": 0,
+    "endereco_contato.numberAddress": 0,
+    "endereco_contato.complement": 0,
+    "endereco_contato.neighborhood": 0,
+    "endereco_contato.city": 0,
+    "endereco_contato.gps": 0,
+    "endereco_contato.state": 0,
+    "endereco_contato.phone": 0,
+    "endereco_contato.mobile": 0,
+    "endereco_contato.facebook": 0,
+    "endereco_contato.twitter": 0,
+    "endereco_contato.instagram": 0,
+    "profissional_eleitoral": 0,
+    "notificacoes_anotacoes": 0,
+    "endereco_contato": 0,
+    "file": 0,
+    "datacreate": 0,
+    "dataUpdate": 0,
+    "dataCreate": 0,
+    "userUpdate": 0
+}
+
+
 function getCountCollection(db, collectionName) {
     const defer = Q.defer();
     db.db("baseinit").collection(collectionName)
@@ -23,6 +57,7 @@ function getTotalCharts(db) {
     const defer = Q.defer();
     db.db('baseinit').collection('pessoa')
         .find({})
+        .project(ignorObject)
         .toArray(function (err, res) {
             if (err) {
                 defer.reject(JSON.stringify(err));
@@ -46,8 +81,10 @@ function getTotalCharts(db) {
 
 function getTotalChartsEtnia(db) {
     const defer = Q.defer();
-    db.db('baseinit').collection('pessoa')
+    db.db('baseinit')
+        .collection('pessoa')
         .find({})
+        .project(ignorObject)
         .toArray(function (err, res) {
             if (err) {
                 defer.reject(JSON.stringify(err));
