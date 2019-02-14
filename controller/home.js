@@ -1,5 +1,6 @@
 const MongoClient = require('mongodb').MongoClient;
 const status = require('http-status');
+const ObjectId = require('mongodb').ObjectId;
 const _ = require("lodash");
 const Q = require('q');
 const moment = require('moment');
@@ -133,17 +134,6 @@ function insertHomeData(db) {
         fieldName: 'colegios'
     }];
 
-    for (let i = 0; i < items.length; i++) {
-        promises.push(getCountCollection(db, items[i].collectionName)
-            .then((data) => {
-                myObjinside.totalItems[items[i].fieldName] = data;
-                return Q.resolve(data);
-            })
-            .catch((e) => {
-                return Q.reject(e);
-            }));
-    }
-
     promises.push(getTotalCharts(db)
         .then((data) => {
             myObjinside.charts = data;
@@ -162,6 +152,17 @@ function insertHomeData(db) {
             return Q.reject(e);
         }));
 
+    for (let i = 0; i < items.length; i++) {
+        promises.push(getCountCollection(db, items[i].collectionName)
+            .then((data) => {
+                myObjinside.totalItems[items[i].fieldName] = data;
+                return Q.resolve(data);
+            })
+            .catch((e) => {
+                return Q.reject(e);
+            }));
+    }
+
     Q.all(promises)
         .then(() => {
             myObjinside.expires_in = moment().add(2, 'hours');
@@ -171,7 +172,7 @@ function insertHomeData(db) {
                     if (err) {
                         console.log(erro);
                     }
-                    defer.resolve([myObjmain]);
+                    defer.resolve([myObjinside]);
                 });
         });
 
