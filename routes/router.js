@@ -123,6 +123,7 @@ routes.get('/cnpjws/:cnpj', controllerCnpjWs.getCNPJWs);
 ///fileUpload
 routes.get('/dropbox', controllerUploadFile.getFilesList);
 routes.post('/dropbox/upload', controllerUploadFile.postUpload);
+routes.post('/dropbox/uploadEditor', controllerUploadFile.postUploadEditor);
 routes.get('/dropbox/download', controllerUploadFile.download);
 routes.post('/dropbox/remove', controllerUploadFile.remove);
 
