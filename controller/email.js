@@ -16,7 +16,7 @@ function CreateListMaile(titulo) {
             'Content-Type': 'application/x-www-form-urlencoded',
             'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
         },
-        form: { site: "agencialeak" , name : titulo  , phone: "(211)336-1440" }
+        form: { site: "agencialeak", name: titulo + "_" + Date.now(), phone: "(211)336-1440" }
     };
 
     try {
@@ -24,7 +24,117 @@ function CreateListMaile(titulo) {
             if (error) {
                 defer.resolve(null);
             } else {
-                defer.resolve(JSON.parse(body).id);
+                defer.resolve(JSON.parse(body));
+            }
+        });
+    } catch (error) {
+        defer.resolve(null);
+    }
+
+    return defer.promise;
+}
+
+function AddContactList(namelist, idcontact) {
+    const defer = Q.defer();
+    const clientServerOptions = {
+        uri: require("../conf/config").urlMailee + 'contacts/' + idcontact + '/list_subscribe',
+        qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
+        },
+        form: { list: namelist }
+    };
+
+    try {
+        request(clientServerOptions, (error, response, body) => {
+            if (error) {
+                defer.resolve(null);
+            } else {
+                defer.resolve(JSON.parse(body));
+            }
+        });
+    } catch (error) {
+        defer.resolve(null);
+    }
+
+    return defer.promise;
+}
+
+function CreateMessage(htmlText, contacts, subject) {
+    const defer = Q.defer();
+    const clientServerOptions = {
+        uri: require("../conf/config").urlMailee + 'messages/',
+        qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
+        },
+        form: {
+            newsletter_id: "154274",
+            html: htmlText,
+            reply_email: "contato@agencialeak.com.br",
+            analytics: "true",
+            from_name: "AgenciaLeak.com",
+            title: contacts.name,
+            subject: subject,
+            from_email: "contato@agencialeak.com.br",
+            template_id: "30",
+            list_ids: contacts.id
+        }
+    };
+
+    try {
+        request(clientServerOptions, (error, response, body) => {
+            if (error) {
+                defer.resolve(null);
+            } else {
+                defer.resolve(
+
+                    SendMessage(JSON.parse(body).id)
+
+                );
+            }
+        });
+    } catch (error) {
+        defer.resolve(null);
+    }
+
+    return defer.promise;
+}
+
+function SendMessage(id) {
+    const defer = Q.defer();
+    const clientServerOptions = {
+        uri: require("../conf/config").urlMailee + 'messages/' + id + "/ready",
+        qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
+        },
+        form: { when: "now" }
+    };
+
+    try {
+        request(clientServerOptions, (error, response, bodymessage) => {
+            if (error) {
+                defer.resolve(null);
+            } else {
+                if (JSON.parse(bodymessage).message == "Problems establishing connection with Mailee.me. Please contact support@mailee.me.") {
+                    request(clientServerOptions, (error, response, body) => {
+                        if (error) {
+                            defer.resolve(null);
+                        } else {
+                            console.log(body)
+                            defer.resolve(JSON.stringify(body));
+                        }
+                    })
+                } else {
+                    defer.resolve(JSON.stringify(body));
+                }
             }
         });
     } catch (error) {
@@ -35,79 +145,32 @@ function CreateListMaile(titulo) {
 }
 
 exports.sendEmail = (request, response, next) => {
-    
     var genre = request.body.criterion.genre;
-    if(genre.allProcess == true){
+    
+    
+    if (genre.allProcess == true) {
         MongoClient.connect(conf.mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
-            db.db("baseinit").collection("pessoa").find({"notificacoes_anotacoes.email": true})
-                 .toArray(function (err, res) {
+            db.db("baseinit").collection("pessoa").find({ "notificacoes_anotacoes.email": true })
+                .toArray(function (err, res) {
                     CreateListMaile(request.body.subject).then(data => {
-                        console.log(data);
-                    });
 
-                    
-                 })
+                        for (var i in res) {
+                            if (res[i].id_mailee != "") {
+
+                                AddContactList(data.name, res[i].id_mailee)
+                                    .then(dataContact => {
+                                        CreateMessage(request.body.html, dataContact, request.body.emailTitle);
+                                        response.status(status.OK).send("Lista gerada com sucesso aguarde 5 min para envio!");
+                                    }).catch((err) => {
+                                        response.status(status.NOT_FOUND).send(JSON.stringify(err));
+                                    });
+                            }
+                        }
+                    })
+                })
         })
     }
-    // MongoClient.connect(conf.mongoURI, { useNewUrlParser: true }, function (erro, db) {
-    //     nodemailer.createTestAccount((err, account) => {
-    //         let transporter = nodemailer.createTransport({
-    //             host: conf.host,
-    //             port: conf.porthost,
-    //             secure: conf.secure,
-    //             auth: {
-    //                 user: conf.usermail,
-    //                 pass: conf.passmail
-    //             }
-    //         });
-
-    //         db.db("baseinit").collection("pessoa").find({})
-    //             .toArray(function (err, res) {
-    //                 if (err) {
-    //                     response.status(status.BAD_REQUEST).send(JSON.stringify(err));
-    //                 }
-    //                 else {
-    //                     if (res.length != 0) {
-
-    //                         res.forEach(function (doc) {
-    //                             if (doc.notificacoes_anotacoes.email) {
-
-    //                                 //setup email data with unicode symbols
-    //                                 let mailOptions = {
-    //                                     from: 'Geca email', // sender address
-    //                                     to: doc.endereco_contato.email, // list of receivers
-    //                                     subject: request.body.title, // Subject line
-    //                                     //text: 'Hello world?', // plain text body
-    //                                     html: request.body.text // html body
-    //                                 };
-
-    //                                 // send mail with defined transport object
-    //                                 transporter.sendMail(mailOptions, (error, info) => {
-    //                                     if (error) {
-    //                                         console.log('Email:', doc.endereco_contato.email);
-    //                                         return console.log(error);
-    //                                     }
-    //                                     console.log('Message sent: %s', doc.endereco_contato.email);
-    //                                     console.log('Message sent: %s', info.messageId);
-    //                                     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-    //                                 });
-
-    //                             }
-    //                             //console.log(doc);
-    //                         });
-
-    //                         response.status(status.OK).send(JSON.stringify("Email's Enviado(s) com sucesso."));
-    //                     } else {
-    //                         response.status(status.NOT_FOUND).send(JSON.stringify("Problemas ao envio de email"));
-    //                     }
-    //                 }
-    //                 db.close();
-    //             });
-    //     });
-
-    // });
-
 }
 
 const sortPessoa = (type) => {
