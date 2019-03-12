@@ -221,7 +221,7 @@ const sortPessoa = (type) => {
     }
 }
 
-const filterType = () => {
+const filterType = (query) => {
     let filter = [];
     const itemFilter = {};
     itemFilter['endereco_contato.email'] = { '$exists': true, $ne: null, $ne: '' };
