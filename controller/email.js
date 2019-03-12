@@ -78,11 +78,11 @@ function CreateMessage(htmlText, contacts, subject) {
             reply_email: "contato@agencialeak.com.br",
             analytics: "true",
             from_name: "AgenciaLeak.com",
-            title: contacts.name,
+            title: subject,
             subject: subject,
             from_email: "contato@agencialeak.com.br",
             template_id: "30",
-            list_ids: contacts.id
+            list_ids: contacts
         }
     };
 
@@ -91,11 +91,35 @@ function CreateMessage(htmlText, contacts, subject) {
             if (error) {
                 defer.resolve(null);
             } else {
-                defer.resolve(
+                defer.resolve(SendMessage(JSON.parse(body).id));
+            }
+        });
+    } catch (error) {
+        defer.resolve(null);
+    }
 
-                    SendMessage(JSON.parse(body).id)
+    return defer.promise;
+}
 
-                );
+function postMaileContact(addressemail) {
+    const defer = Q.defer();
+    const clientServerOptions = {
+        uri: require("../conf/config").urlMailee + 'contacts',
+        qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
+        },
+        form: { email: addressemail }
+    };
+
+    try {
+        request(clientServerOptions, (error, response, body) => {
+            if (error) {
+                defer.resolve(null);
+            } else {
+                defer.resolve(JSON.parse(body).id);
             }
         });
     } catch (error) {
@@ -123,12 +147,13 @@ function SendMessage(id) {
             if (error) {
                 defer.resolve(null);
             } else {
-                if (JSON.parse(bodymessage).message == "Problems establishing connection with Mailee.me. Please contact support@mailee.me.") {
+                if (JSON.parse(bodymessage).message == "Problems establishing connection with Mailee.me. Please contact support@mailee.me." || 
+                    JSON.parse(bodymessage).message == undefined) {
                     request(clientServerOptions, (error, response, body) => {
                         if (error) {
                             defer.resolve(null);
                         } else {
-                            console.log(body)
+                            //console.log(JSON.stringify(body))
                             defer.resolve(JSON.stringify(body));
                         }
                     })
@@ -146,27 +171,39 @@ function SendMessage(id) {
 
 exports.sendEmail = (request, response, next) => {
     var genre = request.body.criterion.genre;
-    
-    
+    var idListMailee;
+
     if (genre.allProcess == true) {
         MongoClient.connect(conf.mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
-            db.db("baseinit").collection("pessoa").find({ "notificacoes_anotacoes.email": true })
+            db.db("baseinit").collection("pessoa").find({ "notificacoes_anotacoes.email": true, "dados_pessoais.sexo": request.body.criterion.genre.type })
                 .toArray(function (err, res) {
-                    CreateListMaile(request.body.subject).then(data => {
+                    CreateListMaile(request.body.subject)
+                        .then(data => {
+                            idListMailee = data.id;
+                            for (var i in res) {
 
-                        for (var i in res) {
-                            if (res[i].id_mailee != "") {
+                                if (res[i].id_mailee != undefined) {
+                                    AddContactList(data.name, res[i].id_mailee)
+                                } else {
+                                    postMaileContact(res[i].endereco_contato.email).then(
+                                        dataContact => {
 
-                                AddContactList(data.name, res[i].id_mailee)
-                                    .then(dataContact => {
-                                        CreateMessage(request.body.html, dataContact, request.body.emailTitle);
-                                        response.status(status.OK).send("Lista gerada com sucesso aguarde 5 min para envio!");
-                                    }).catch((err) => {
-                                        response.status(status.NOT_FOUND).send(JSON.stringify(err));
-                                    });
+                                            AddContactList(data.name, dataContact)
+                                                .then(dataContact => {
+                                                    //CreateMessage(request.body.html, dataContact.id, request.body.emailTitle);                                                
+                                                }).catch((err) => {
+                                                    response.status(status.NOT_FOUND).send(JSON.stringify(err));
+                                                });
+                                        });
+                                }
+
                             }
-                        }
+                    })
+                    .then(() => {
+                        CreateMessage(request.body.html, idListMailee, request.body.emailTitle).then(dataCreate => {
+                            response.status(status.OK).send("Lista gerada com sucesso aguarde alguns minutos para envio!");
+                        });
                     })
                 })
         })
