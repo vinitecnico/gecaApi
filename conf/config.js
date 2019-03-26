@@ -12,8 +12,8 @@ module.exports = {
   configName: 'g3c4T0k3n#!', 
   expireInTime: 10800 ,
   keyDropbox: '1TDzKQVLbQAAAAAAAAAAEKY7QIlklzKVIz5OxGjjLJbB0JmilBhROQdakOGKeeZu',
-  tokenxrapidapikey: 'e8c62da454mshe004396abdaf993p1d2c7ejsn012115a2fc24',
-  xrapidapikey: '6ff20b779f2f2',
-  subdomain: 'agencialeak', 
+  tokenxrapidapikey: 'O7VUgBa8ismshfNmGuvufD6kkItCp1BMIxJjsnBInd6Ws5IEgc',
+  xrapidapikey: 'd7433bb0ef816',
+  subdomain: 'ricardoferrante', 
   urlMailee: 'https://mailee.p.rapidapi.com/'
 };

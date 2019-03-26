@@ -143,25 +143,28 @@ function SendMessage(id) {
     };
 
     try {
-        request(clientServerOptions, (error, response, bodymessage) => {
-            if (error) {
-                defer.resolve(null);
-            } else {
-                if (JSON.parse(bodymessage).message == "Problems establishing connection with Mailee.me. Please contact support@mailee.me." || 
-                    JSON.parse(bodymessage).message == undefined) {
-                    request(clientServerOptions, (error, response, body) => {
-                        if (error) {
-                            defer.resolve(null);
-                        } else {
-                            //console.log(JSON.stringify(body))
-                            defer.resolve(JSON.stringify(body));
-                        }
-                    })
+        return setTimeout(() => {
+            return request(clientServerOptions, (error, response, bodymessage) => {
+                if (error) {
+                    defer.resolve(null);
                 } else {
-                    defer.resolve(JSON.stringify(body));
+                    if (JSON.parse(bodymessage).message == "Problems establishing connection with Mailee.me. Please contact support@mailee.me." || 
+                        JSON.parse(bodymessage).message == undefined) {
+                        request(clientServerOptions, (error, response, body) => {
+                            if (error) {
+                                defer.resolve(null);
+                            } else {
+                                //console.log(JSON.stringify(body))
+                                defer.resolve(SendMessage(id));
+                            }
+                        })
+                    } else {
+                        defer.resolve(JSON.stringify(bodymessage));
+                    }
                 }
-            }
-        });
+            });            
+        }, 100);
+
     } catch (error) {
         defer.resolve(null);
     }
@@ -176,7 +179,7 @@ exports.sendEmail = (request, response, next) => {
     if (genre.allProcess == true) {
         MongoClient.connect(conf.mongoURI, { useNewUrlParser: true }, function (erro, db) {
 
-            db.db("baseinit").collection("pessoa").find({ "notificacoes_anotacoes.email": true, "dados_pessoais.sexo": request.body.criterion.genre.type })
+            db.db("baseinit").collection("pessoa").find({ "notificacoes_anotacoes.email": true, "dados_pessoais.sexo": request.body.criterion.genre.type.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); }) })
                 .toArray(function (err, res) {
                     CreateListMaile(request.body.subject)
                         .then(data => {
