@@ -5,212 +5,61 @@ const conf = require("../conf/config");
 const Q = require('q');
 const _ = require("lodash");
 const request = require('request');
+const express = require('express'); // import express module
+const bodyParser = require('body-parser'); // import body parser module
+const Mailchimp = require('mailchimp-api-v3'); // node js mailchimp wrapper library
+const app = express(); // create express instance
+app.use(bodyParser.json()); // register middleware to parse application/json
+app.use(bodyParser.urlencoded({ extended: true })); // with extended true you can post nested object.
 
-function CreateListMaile(titulo) {
-    const defer = Q.defer();
-    const clientServerOptions = {
-        uri: require("../conf/config").urlMailee + 'lists',
-        qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
-        },
-        form: { site: "agencialeak", name: titulo + "_" + Date.now(), phone: "(211)336-1440" }
-    };
+ function CreateList() {
+    
+ }
 
-    try {
-        request(clientServerOptions, (error, response, body) => {
-            if (error) {
-                defer.resolve(null);
-            } else {
-                defer.resolve(JSON.parse(body));
-            }
-        });
-    } catch (error) {
-        defer.resolve(null);
-    }
 
-    return defer.promise;
-}
-
-function AddContactList(namelist, idcontact) {
-    const defer = Q.defer();
-    const clientServerOptions = {
-        uri: require("../conf/config").urlMailee + 'contacts/' + idcontact + '/list_subscribe',
-        qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
-        },
-        form: { list: namelist }
-    };
-
-    try {
-        request(clientServerOptions, (error, response, body) => {
-            if (error) {
-                defer.resolve(null);
-            } else {
-                defer.resolve(JSON.parse(body));
-            }
-        });
-    } catch (error) {
-        defer.resolve(null);
-    }
-
-    return defer.promise;
+function AddContactList(email, idlist) {
+    request.post( require("../conf/config").urlMailChimp +'/${'+ idlist +'}/actions/test')
+    .set('Content-Type', 'application/json;charset=utf-8')
+    .set('Authorization', 'Basic ' + new Buffer('any:' + require("../conf/config").keyMailChimp).toString('base64'))
+    .send({
+        test_emails: email,
+        send_type: 'geca 01 com mailChimp',
+    })
+    .end((error, response) => {
+        if (error) {
+            res.send({ error });
+        } else {
+            res.send({ data: response });
+        }
+    });
 }
 
 function CreateMessage(htmlText, contacts, subject) {
-    const defer = Q.defer();
-    const clientServerOptions = {
-        uri: require("../conf/config").urlMailee + 'messages/',
-        qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
-        },
-        form: {
-            newsletter_id: "154274",
-            html: htmlText,
-            reply_email: "contato@agencialeak.com.br",
-            analytics: "true",
-            from_name: "AgenciaLeak.com",
-            title: subject,
-            subject: subject,
-            from_email: "contato@agencialeak.com.br",
-            template_id: "30",
-            list_ids: contacts
-        }
-    };
-
-    try {
-        request(clientServerOptions, (error, response, body) => {
-            if (error) {
-                defer.resolve(null);
-            } else {
-                defer.resolve(SendMessage(JSON.parse(body).id));
-            }
-        });
-    } catch (error) {
-        defer.resolve(null);
-    }
-
-    return defer.promise;
+    
 }
 
 function postMaileContact(addressemail) {
-    const defer = Q.defer();
-    const clientServerOptions = {
-        uri: require("../conf/config").urlMailee + 'contacts',
-        qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
-        },
-        form: { email: addressemail }
-    };
-
-    try {
-        request(clientServerOptions, (error, response, body) => {
-            if (error) {
-                defer.resolve(null);
-            } else {
-                defer.resolve(JSON.parse(body).id);
-            }
+    app.post('/subscribe', (req, res) => {
+        const list_id = '14ec44d6cc'; // list id
+        const mailchimp = new Mailchimp(require("../conf/config").keyMailChimp); // create MailChimp instance
+        mailchimp.post(`lists/${list_id}`, { members: [{ // send a post request to create new subscription to the list
+            email_address:addressemail,
+            status: "subscribed"
+        }]
+        }).then((reslut) => {
+          return res.send(reslut);
+        }).catch((error) => {
+          return res.send(error);
         });
-    } catch (error) {
-        defer.resolve(null);
-    }
-
-    return defer.promise;
+   });
 }
 
 function SendMessage(id) {
-    const defer = Q.defer();
-    const clientServerOptions = {
-        uri: require("../conf/config").urlMailee + 'messages/' + id + "/ready",
-        qs: { api_key: require("../conf/config").xrapidapikey, subdomain: require("../conf/config").subdomain },
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-RapidAPI-Key': require("../conf/config").tokenxrapidapikey
-        },
-        form: { when: "now" }
-    };
 
-    try {
-        return setTimeout(() => {
-            return request(clientServerOptions, (error, response, bodymessage) => {
-                if (error) {
-                    defer.resolve(null);
-                } else {
-                    if (JSON.parse(bodymessage).message == "Problems establishing connection with Mailee.me. Please contact support@mailee.me." || 
-                        JSON.parse(bodymessage).message == undefined) {
-                        request(clientServerOptions, (error, response, body) => {
-                            if (error) {
-                                defer.resolve(null);
-                            } else {
-                                //console.log(JSON.stringify(body))
-                                defer.resolve(SendMessage(id));
-                            }
-                        })
-                    } else {
-                        defer.resolve(JSON.stringify(bodymessage));
-                    }
-                }
-            });            
-        }, 100);
-
-    } catch (error) {
-        defer.resolve(null);
-    }
-
-    return defer.promise;
 }
 
 exports.sendEmail = (request, response, next) => {
-    var genre = request.body.criterion.genre;
-    var idListMailee;
-
-    if (genre.allProcess == true) {
-        MongoClient.connect(conf.mongoURI, { useNewUrlParser: true }, function (erro, db) {
-
-            db.db("baseinit").collection("pessoa").find({ "notificacoes_anotacoes.email": true, "dados_pessoais.sexo": request.body.criterion.genre.type.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); }) })
-                .toArray(function (err, res) {
-                    CreateListMaile(request.body.subject)
-                        .then(data => {
-                            idListMailee = data.id;
-                            for (var i in res) {
-
-                                if (res[i].id_mailee != undefined) {
-                                    AddContactList(data.name, res[i].id_mailee)
-                                } else {
-                                    postMaileContact(res[i].endereco_contato.email).then(
-                                        dataContact => {
-
-                                            AddContactList(data.name, dataContact)
-                                                .then(dataContact => {
-                                                    //CreateMessage(request.body.html, dataContact.id, request.body.emailTitle);                                                
-                                                }).catch((err) => {
-                                                    response.status(status.NOT_FOUND).send(JSON.stringify(err));
-                                                });
-                                        });
-                                }
-
-                            }
-                    })
-                    .then(() => {
-                        CreateMessage(request.body.html, idListMailee, request.body.emailTitle).then(dataCreate => {
-                            response.status(status.OK).send("Lista gerada com sucesso aguarde alguns minutos para envio!");
-                        });
-                    })
-                })
-        })
-    }
+    
 }
 
 const sortPessoa = (type) => {

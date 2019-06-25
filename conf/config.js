@@ -12,8 +12,11 @@ module.exports = {
   configName: 'g3c4T0k3n#!', 
   expireInTime: 10800 ,
   keyDropbox: '1TDzKQVLbQAAAAAAAAAAEKY7QIlklzKVIz5OxGjjLJbB0JmilBhROQdakOGKeeZu',
-  tokenxrapidapikey: 'O7VUgBa8ismshfNmGuvufD6kkItCp1BMIxJjsnBInd6Ws5IEgc',
-  xrapidapikey: 'd7433bb0ef816',
-  subdomain: 'ricardoferrante', 
-  urlMailee: 'https://mailee.p.rapidapi.com/'
+  // tokenxrapidapikey: 'O7VUgBa8ismshfNmGuvufD6kkItCp1BMIxJjsnBInd6Ws5IEgc',
+  // xrapidapikey: 'd7433bb0ef816',
+  // subdomain: 'ricardoferrante', 
+  // urlMailee: 'https://mailee.p.rapidapi.com/'
+
+  keyMailChimp: "327f74b651429c860162bd5ab3d341aa-us20",
+  urlMailChimp: "https://us20.api.mailchimp.com/3.0/campaigns/"
 };
