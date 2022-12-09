@@ -15,7 +15,7 @@
     "cors": "^2.8.5",
     "decode-html": "^2.0.0",
     "dropbox": "^4.0.15",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "filereader": "^0.10.3",
     "html-entities": "^1.2.1",
     "http": "0.0.0",
